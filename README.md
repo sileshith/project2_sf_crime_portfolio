@@ -1,11 +1,21 @@
-
-# San Francisco Crime Analytics (2018–2025) + 2026 Forecast
+# San Francisco Crime Analytics (2018–2025) + 2026 Outlook
 
 ## Overview
-This project analyzes San Francisco Police Department incident records from 2018–2025 and produces a short-term citywide forecast for 2026.  
-It is designed as a portfolio-quality analytics project demonstrating an end-to-end workflow: validated data, engineered time features, reproducible aggregates, forecasting, and an interactive dashboard.
 
-The emphasis is on reproducibility, structure, and clarity rather than ad-hoc exploration.
+This project analyzes San Francisco Police Department (SFPD) incident records from 2018–2025 and produces a short-term citywide forecast for 2026.
+
+It is designed as a **portfolio-quality analytics project** demonstrating an end-to-end workflow: data validation, feature engineering, reproducible aggregation pipelines, forecasting, and deployment of an interactive dashboard.
+
+The emphasis is on **structure, reproducibility, and clarity**, mirroring real-world analytics systems rather than ad-hoc exploration.
+
+---
+
+## Live Dashboard
+
+**Public Streamlit App:**  
+ https://project2sfcrimeportfolio-g6jhgqizljzqexcb3ss7wd.streamlit.app/
+
+The deployed dashboard reads exclusively from precomputed parquet artifacts and does not rely on raw incident-level data at runtime.
 
 ---
 
@@ -15,26 +25,30 @@ The emphasis is on reproducibility, structure, and clarity rather than ad-hoc ex
 project2_sf_crime_portfolio/
 │
 ├── dashboard/
-│   └── app.py              # Main Streamlit dashboard code
+│   └── app.py              # Streamlit dashboard (reads precomputed artifacts)
 │
 ├── data/
-│   ├── raw/                # Original, immutable data (SFPD Open Data)
-│   └── processed/          # Cleaned Parquet files & aggregated 'lite' datasets
+│   ├── raw/                # Original SFPD data (not tracked)
+│   └── processed/          # Cleaned & aggregated parquet artifacts
 │
 ├── notebooks/
 │   ├── 01_data_validation_and_cleaning.ipynb
 │   ├── 02_exploratory_analysis.ipynb
-│   └── 03_forecasting_2026.ipynb   # Prophet modeling and 2026 predictions
+│   └── 03_forecasting_2026.ipynb
 │
-├── models/                 # Saved Prophet model binaries (.json or .pkl)
+├── models/                 # Saved forecasting model artifacts (optional)
 │
 ├── reports/
 │   └── sf_crime_analysis_report.pdf
 │
-├── scripts/                # Helper .py scripts for data processing
+├── scripts/
+│   └── build_dashboard_artifacts.py   # Reproducible aggregation pipeline
 │
-├── README.md               # Project overview and setup instructions
-└── requirements.txt        # Python dependencies (Pandas, Prophet, Plotly)
+├── .streamlit/
+│   └── config.toml         # Dashboard theme configuration
+│
+├── README.md
+└── requirements.txt
 ```
 
 ---
@@ -42,15 +56,14 @@ project2_sf_crime_portfolio/
 ## Data
 
 ### Source
-- DataSF – Police Incident Reports
+- DataSF - Police Incident Reports
 - Neighborhood definitions follow the official **Analysis Neighborhoods** system used by the City of San Francisco.
 
 ### Included Data (GitHub-friendly)
 To keep the repository lightweight and reproducible, the dashboard reads from **precomputed parquet artifacts** rather than raw incident-level data.
 
 Included processed files:
-- `data/processed/daily_counts.parquet`
-- `data/processed/neighborhood_counts.parquet`
+- `data/processed/monthly_neighborhood_category.parquet`
 - `data/processed/hourly_weekday_counts.parquet`
 - `data/processed/monthly_citywide.parquet`
 - `data/processed/forecast_citywide_monthly_2026.parquet`
@@ -91,3 +104,17 @@ Features:
 ```
 streamlit run dashboard/app.py
 ```
+
+### Notes on Interpretation
+
+The 2026 forecast is intended as a planning and trend-monitoring signal, not a causal claim.
+
+Results reflect reported incidents and may be influenced by reporting practices, policy changes, and external events.
+
+This project prioritizes analytical rigor and reproducibility over visual embellishment.
+
+#### Author
+
+Sileshi Hirpa  
+Data Science & Business Analytics  
+Arizona State University
