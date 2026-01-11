@@ -1,9 +1,6 @@
 # dashboard/app.py
 # San Francisco Crime Analytics (2018–2025) + 2026 Outlook
-# Streamlit dashboard reading aggregated parquet outputs from data/processed/
-#
-# Option A (Recommended): No raw incident parquet required for deployment.
-# The app reads lightweight, precomputed artifacts that are safe to store on GitHub.
+# Streamlit dashboard reading precomputed parquet artifacts from data/processed/
 
 from pathlib import Path
 
@@ -20,109 +17,119 @@ APP_DIR = Path(__file__).resolve().parent      # .../dashboard
 ROOT_DIR = APP_DIR.parent                      # project root
 DATA_DIR = ROOT_DIR / "data" / "processed"
 
-MONTHLY_FILE = DATA_DIR / "monthly_citywide.parquet"
+MONTHLY_NBH_CAT_FILE = DATA_DIR / "monthly_neighborhood_category.parquet"
 HOURLY_WEEKDAY_FILE = DATA_DIR / "hourly_weekday_counts.parquet"
+MONTHLY_CITYWIDE_FILE = DATA_DIR / "monthly_citywide.parquet"
 FORECAST_FILE = DATA_DIR / "forecast_citywide_monthly_2026.parquet"
 
 
 # ============================================================
 # Page config
 # ============================================================
-st.set_page_config(page_title="SF Crime Analytics (2018-2025) + 2026 Outlook", layout="wide")
-st.title("San Francisco Crime Analytics (2018-2025) + 2026 Outlook")
+st.set_page_config(
+    page_title="SF Crime Analytics (2018–2025) + 2026 Outlook",
+    layout="wide",
+)
+st.title("San Francisco Crime Analytics (2018–2025) + 2026 Outlook")
 st.caption("Portfolio dashboard built from precomputed SFPD aggregates (parquet).")
 
 
 # ============================================================
-# Load data (aggregates only)
+# Load artifacts
 # ============================================================
-@st.cache_data(show_spinner="Loading monthly totals...")
-def load_monthly(path: Path) -> pd.DataFrame:
-    df = pd.read_parquet(path).copy()
+@st.cache_data(show_spinner="Loading dashboard artifacts...")
+def load_artifacts():
+    required_files = [
+        MONTHLY_NBH_CAT_FILE,
+        HOURLY_WEEKDAY_FILE,
+        MONTHLY_CITYWIDE_FILE,
+        FORECAST_FILE,
+    ]
 
-    # Expect: month, neighborhood, incident_category, incidents
-    required = {"month", "neighborhood", "incident_category", "incidents"}
-    missing = required - set(df.columns)
+    missing = [str(p) for p in required_files if not p.exists()]
     if missing:
-        raise ValueError(f"monthly_citywide missing columns: {sorted(missing)}")
+        raise FileNotFoundError("Missing required artifact(s):\n" + "\n".join(missing))
 
-    df["month"] = pd.to_datetime(df["month"], errors="coerce")
-    df = df.dropna(subset=["month"])
-    df["incidents"] = pd.to_numeric(df["incidents"], errors="coerce").fillna(0).astype(int)
+    mnc = pd.read_parquet(MONTHLY_NBH_CAT_FILE)
+    hw = pd.read_parquet(HOURLY_WEEKDAY_FILE)
+    mc = pd.read_parquet(MONTHLY_CITYWIDE_FILE)
+    fc = pd.read_parquet(FORECAST_FILE)
 
-    # Add year + hour placeholders for unified filtering
-    df["year"] = df["month"].dt.year.astype(int)
-    return df
+    # ----------------------------
+    # Validate monthly_neighborhood_category
+    # ----------------------------
+    need_mnc = {"year_month", "year", "neighborhood", "incident_category", "incidents"}
+    miss_mnc = sorted(list(need_mnc - set(mnc.columns)))
+    if miss_mnc:
+        raise ValueError(f"monthly_neighborhood_category missing columns: {miss_mnc}")
 
+    mnc = mnc.copy()
+    mnc["year_month"] = pd.to_datetime(mnc["year_month"], errors="coerce")
+    mnc["year"] = pd.to_numeric(mnc["year"], errors="coerce").astype("Int64")
+    mnc["incidents"] = pd.to_numeric(mnc["incidents"], errors="coerce").fillna(0)
 
-@st.cache_data(show_spinner="Loading hour × weekday counts...")
-def load_hourly_weekday(path: Path) -> pd.DataFrame:
-    df = pd.read_parquet(path).copy()
+    mnc = mnc.dropna(subset=["year_month", "year", "neighborhood", "incident_category"])
+    mnc["year"] = mnc["year"].astype(int)
 
-    # Expect: weekday_label, hour, incident_category, incidents
-    required = {"weekday_label", "hour", "incident_category", "incidents"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"hourly_weekday_counts missing columns: {sorted(missing)}")
+    # ----------------------------
+    # Validate hourly_weekday_counts
+    # ----------------------------
+    need_hw = {"weekday_label", "hour", "incident_category", "incidents"}
+    miss_hw = sorted(list(need_hw - set(hw.columns)))
+    if miss_hw:
+        raise ValueError(f"hourly_weekday_counts missing columns: {miss_hw}")
 
-    df["hour"] = pd.to_numeric(df["hour"], errors="coerce").fillna(0).astype(int)
-    df = df[(df["hour"] >= 0) & (df["hour"] <= 23)].copy()
-    df["incidents"] = pd.to_numeric(df["incidents"], errors="coerce").fillna(0).astype(int)
+    hw = hw.copy()
+    hw["hour"] = pd.to_numeric(hw["hour"], errors="coerce").fillna(0).astype(int)
+    hw = hw[(hw["hour"] >= 0) & (hw["hour"] <= 23)].copy()
+    hw["weekday_label"] = hw["weekday_label"].astype(str)
+    hw["incident_category"] = hw["incident_category"].astype(str)
+    hw["incidents"] = pd.to_numeric(hw["incidents"], errors="coerce").fillna(0)
 
-    df["weekday_label"] = df["weekday_label"].astype(str)
-    df["incident_category"] = df["incident_category"].astype(str)
+    # ----------------------------
+    # Validate monthly_citywide
+    # ----------------------------
+    need_mc = {"month", "incidents"}
+    miss_mc = sorted(list(need_mc - set(mc.columns)))
+    if miss_mc:
+        raise ValueError(f"monthly_citywide missing columns: {miss_mc}")
 
-    return df
+    mc = mc.copy()
+    mc["month"] = pd.to_datetime(mc["month"], errors="coerce")
+    mc["incidents"] = pd.to_numeric(mc["incidents"], errors="coerce").fillna(0)
+    mc = mc.dropna(subset=["month"]).sort_values("month")
 
+    # ----------------------------
+    # Validate forecast_citywide_monthly_2026
+    # ----------------------------
+    need_fc = {"month", "forecast", "lower", "upper"}
+    miss_fc = sorted(list(need_fc - set(fc.columns)))
+    if miss_fc:
+        raise ValueError(f"forecast_citywide_monthly_2026 missing columns: {miss_fc}")
 
-@st.cache_data(show_spinner="Loading forecast...")
-def load_forecast(path: Path) -> pd.DataFrame:
-    df = pd.read_parquet(path).copy()
+    fc = fc.copy()
+    fc["month"] = pd.to_datetime(fc["month"], errors="coerce")
+    fc["forecast"] = pd.to_numeric(fc["forecast"], errors="coerce")
+    fc["lower"] = pd.to_numeric(fc["lower"], errors="coerce")
+    fc["upper"] = pd.to_numeric(fc["upper"], errors="coerce")
+    fc = fc.dropna(subset=["month", "forecast", "lower", "upper"]).sort_values("month")
 
-    required = {"month", "forecast", "lower", "upper"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"forecast_citywide_monthly_2026 missing columns: {sorted(missing)}")
+    return mnc, hw, mc, fc
 
-    df["month"] = pd.to_datetime(df["month"], errors="coerce")
-    df = df.dropna(subset=["month"]).sort_values("month")
-
-    for c in ["forecast", "lower", "upper"]:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-
-    return df
-
-
-# ============================================================
-# Existence checks
-# ============================================================
-missing_files = [p for p in [MONTHLY_FILE, HOURLY_WEEKDAY_FILE] if not p.exists()]
-if missing_files:
-    st.error("Missing required data artifacts in data/processed/:")
-    for p in missing_files:
-        st.write(f"- {p}")
-    st.info(
-        "Fix:\n"
-        "1) Generate the artifacts in your notebook/script.\n"
-        "2) Save them under `data/processed/`.\n"
-        "3) Commit + push to GitHub so Streamlit Cloud can read them."
-    )
-    st.stop()
 
 try:
-    monthly_df = load_monthly(MONTHLY_FILE)
-    hourly_df = load_hourly_weekday(HOURLY_WEEKDAY_FILE)
+    mnc, hw, mc, fc = load_artifacts()
 except Exception as e:
     st.error(f"Failed to load dashboard artifacts. Details: {e}")
     st.stop()
 
 
 # ============================================================
-# Sidebar filters (applied to aggregates)
+# Sidebar filters (based on mnc)
 # ============================================================
 st.sidebar.header("Filters")
 
-years = sorted(monthly_df["year"].unique())
+years = sorted(mnc["year"].unique())
 year_min, year_max = int(min(years)), int(max(years))
 
 year_range = st.sidebar.slider(
@@ -133,89 +140,62 @@ year_range = st.sidebar.slider(
     step=1,
 )
 
-neighborhoods = sorted(monthly_df["neighborhood"].unique())
+neighborhoods = sorted(mnc["neighborhood"].unique())
 selected_nbhds = st.sidebar.multiselect(
     "Neighborhoods",
     options=neighborhoods,
-    default=neighborhoods[:5] if len(neighborhoods) > 5 else neighborhoods,
+    default=neighborhoods,   # portfolio-friendly: show full city by default
 )
 
-categories_monthly = sorted(monthly_df["incident_category"].unique())
-categories_hourly = sorted(hourly_df["incident_category"].unique())
-all_categories = sorted(set(categories_monthly) | set(categories_hourly))
+categories = (
+    mnc.groupby("incident_category", observed=True)["incidents"]
+       .sum()
+       .sort_values(ascending=False)
+       .index
+       .tolist()
+)
+default_categories = categories[:10] if len(categories) > 10 else categories
 
-default_cats = all_categories[:10] if len(all_categories) >= 10 else all_categories
 selected_categories = st.sidebar.multiselect(
     "Incident categories",
-    options=all_categories,
-    default=default_cats,
+    options=categories,
+    default=default_categories,
 )
 
-weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-weekday_values = sorted(hourly_df["weekday_label"].unique())
-weekday_options = [d for d in weekday_order if d in weekday_values] + [
-    d for d in weekday_values if d not in weekday_order
-]
+if len(selected_nbhds) == 0 or len(selected_categories) == 0:
+    st.warning("Please select at least one neighborhood and one category in the sidebar.")
+    st.stop()
 
-selected_weekdays = st.sidebar.multiselect(
-    "Weekdays",
-    options=weekday_options,
-    default=weekday_options,
+mask_mnc = (
+    (mnc["year"] >= year_range[0]) &
+    (mnc["year"] <= year_range[1]) &
+    (mnc["neighborhood"].isin(selected_nbhds)) &
+    (mnc["incident_category"].isin(selected_categories))
 )
+mnc_filt = mnc.loc[mask_mnc].copy()
 
-hour_range = st.sidebar.slider(
-    "Hour range",
-    min_value=0,
-    max_value=23,
-    value=(0, 23),
-    step=1,
-)
-
-
-# ============================================================
-# Apply filters to aggregates
-# ============================================================
-monthly_filt = monthly_df[
-    (monthly_df["year"].between(year_range[0], year_range[1])) &
-    (monthly_df["neighborhood"].isin(selected_nbhds)) &
-    (monthly_df["incident_category"].isin(selected_categories))
-].copy()
-
-hourly_filt = hourly_df[
-    (hourly_df["weekday_label"].isin(selected_weekdays)) &
-    (hourly_df["hour"].between(hour_range[0], hour_range[1])) &
-    (hourly_df["incident_category"].isin(selected_categories))
-].copy()
-
-
-# ============================================================
-# Sidebar download (monthly filtered view)
-# ============================================================
 st.sidebar.markdown("---")
 st.sidebar.download_button(
-    "Download monthly filtered CSV",
-    data=monthly_filt.to_csv(index=False).encode("utf-8"),
+    "Download filtered monthly table (CSV)",
+    data=mnc_filt.to_csv(index=False).encode("utf-8"),
     file_name="sf_crime_monthly_filtered.csv",
     mime="text/csv",
 )
 
 
 # ============================================================
-# Summary metrics (aggregate-aware)
+# Summary metrics
 # ============================================================
-total_incidents = int(monthly_filt["incidents"].sum()) if len(monthly_filt) else 0
-months_in_view = int(monthly_filt["month"].dt.to_period("M").nunique()) if len(monthly_filt) else 0
-neighborhoods_in_view = int(monthly_filt["neighborhood"].nunique()) if len(monthly_filt) else 0
+total_incidents = int(mnc_filt["incidents"].sum()) if len(mnc_filt) else 0
+months_in_view = int(mnc_filt["year_month"].dt.to_period("M").nunique()) if len(mnc_filt) else 0
+nbhds_in_view = int(mnc_filt["neighborhood"].nunique()) if len(mnc_filt) else 0
 
-st.write(f"Filtered incidents (monthly aggregate sum): **{total_incidents:,}**")
+st.write(f"Filtered incidents (from monthly aggregates): **{total_incidents:,}**")
 
 m1, m2, m3 = st.columns(3)
-with m1:
-    st.metric("Total incidents", f"{total_incidents:,}")
-with m2:
-    st.metric("Months in view", months_in_view)
-with m3:
-    st.metric("Neighborhoods in view", neighborhoods_in_view)
+m1.metric("Total incidents", f"{total_incidents:,}")
+m2.metric("Months in view", months_in_view)
+m3.metric("Neighborhoods in view", nbhds_in_view)
 
 
 # ============================================================
@@ -227,94 +207,99 @@ tab1, tab2, tab3, tab4 = st.tabs(
 
 
 # ============================================================
-# TAB 1 — Trends and Rankings (monthly aggregates)
+# TAB 1 — Trends and Rankings
 # ============================================================
 with tab1:
-    st.subheader("Monthly Trend (from filtered monthly aggregates)")
+    st.subheader("Monthly Trend (from filtered aggregates)")
 
-    if len(monthly_filt) == 0:
+    if len(mnc_filt) == 0:
         st.info("No data under current filters.")
     else:
-        city_monthly = (
-            monthly_filt.groupby("month", as_index=False, observed=True)["incidents"]
-            .sum()
-            .sort_values("month")
+        monthly = (
+            mnc_filt.groupby("year_month", observed=True)["incidents"]
+                    .sum()
+                    .reset_index()
+                    .sort_values("year_month")
         )
 
-        fig_ts = px.line(city_monthly, x="month", y="incidents", markers=True)
-        st.plotly_chart(fig_ts, width="stretch")
+        fig_ts = px.line(monthly, x="year_month", y="incidents", markers=True)
+        st.plotly_chart(fig_ts, use_container_width=True)
 
         c1, c2 = st.columns(2)
 
         with c1:
-            st.subheader("Top Neighborhoods (by incidents)")
+            st.subheader("Top Neighborhoods")
             top_n = (
-                monthly_filt.groupby("neighborhood", as_index=False, observed=True)["incidents"]
-                .sum()
-                .sort_values("incidents", ascending=False)
-                .head(10)
+                mnc_filt.groupby("neighborhood", observed=True)["incidents"]
+                        .sum()
+                        .sort_values(ascending=False)
+                        .head(10)
+                        .reset_index()
             )
             fig_n = px.bar(top_n, x="incidents", y="neighborhood", orientation="h")
             fig_n.update_layout(yaxis={"categoryorder": "total ascending"})
-            st.plotly_chart(fig_n, width="stretch")
+            st.plotly_chart(fig_n, use_container_width=True)
 
         with c2:
-            st.subheader("Top Categories (by incidents)")
+            st.subheader("Top Categories")
             top_c = (
-                monthly_filt.groupby("incident_category", as_index=False, observed=True)["incidents"]
-                .sum()
-                .sort_values("incidents", ascending=False)
-                .head(10)
+                mnc_filt.groupby("incident_category", observed=True)["incidents"]
+                        .sum()
+                        .sort_values(ascending=False)
+                        .head(10)
+                        .reset_index()
             )
             fig_c = px.bar(top_c, x="incident_category", y="incidents")
-            st.plotly_chart(fig_c, width="stretch")
+            st.plotly_chart(fig_c, use_container_width=True)
 
 
 # ============================================================
-# TAB 2 — Hour and Weekday Patterns (hourly aggregates)
+# TAB 2 — Hour and Weekday Patterns
 # ============================================================
 with tab2:
-    st.subheader("Hour × Weekday Heatmap (from hourly aggregates)")
+    st.subheader("Hour × Weekday Heatmap (category-filtered)")
 
-    if len(hourly_filt) == 0:
-        st.info("No data under current filters.")
+    hw_filt = hw[hw["incident_category"].isin(selected_categories)].copy()
+
+    if len(hw_filt) == 0:
+        st.info("No hourly-weekday data for the selected categories.")
     else:
-        heat = hourly_filt.copy()
-        heat["weekday_label"] = pd.Categorical(heat["weekday_label"], categories=weekday_options, ordered=True)
-        heat = heat.sort_values(["weekday_label", "hour"])
+        weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        weekday_values = sorted(hw_filt["weekday_label"].unique())
+        weekday_options = [d for d in weekday_order if d in weekday_values] + [
+            d for d in weekday_values if d not in weekday_order
+        ]
+
+        hw_filt["weekday_label"] = pd.Categorical(
+            hw_filt["weekday_label"], categories=weekday_options, ordered=True
+        )
+        hw_filt = hw_filt.sort_values(["weekday_label", "hour"])
 
         fig_h = px.density_heatmap(
-            heat,
+            hw_filt,
             x="hour",
             y="weekday_label",
             z="incidents",
             nbinsx=24,
             labels={"weekday_label": "Weekday", "hour": "Hour", "incidents": "Incidents"},
         )
-        st.plotly_chart(fig_h, width="stretch")
+        st.plotly_chart(fig_h, use_container_width=True)
 
         c1, c2 = st.columns(2)
 
         with c1:
             st.subheader("Hourly pattern")
-            hourly_line = (
-                hourly_filt.groupby("hour", as_index=False, observed=True)["incidents"]
-                .sum()
-                .sort_values("hour")
-            )
-            fig_hour = px.line(hourly_line, x="hour", y="incidents", markers=True)
-            st.plotly_chart(fig_hour, width="stretch")
+            hourly = hw_filt.groupby("hour", observed=True)["incidents"].sum().reset_index()
+            fig_hour = px.line(hourly, x="hour", y="incidents", markers=True)
+            st.plotly_chart(fig_hour, use_container_width=True)
 
         with c2:
             st.subheader("Weekday pattern")
-            wk = (
-                hourly_filt.groupby("weekday_label", as_index=False, observed=True)["incidents"]
-                .sum()
-            )
+            wk = hw_filt.groupby("weekday_label", observed=True)["incidents"].sum().reset_index()
             wk["weekday_label"] = pd.Categorical(wk["weekday_label"], categories=weekday_options, ordered=True)
             wk = wk.sort_values("weekday_label")
             fig_wk = px.bar(wk, x="weekday_label", y="incidents")
-            st.plotly_chart(fig_wk, width="stretch")
+            st.plotly_chart(fig_wk, use_container_width=True)
 
 
 # ============================================================
@@ -323,64 +308,36 @@ with tab2:
 with tab3:
     st.subheader("Citywide Monthly Forecast (precomputed)")
 
-    if not FORECAST_FILE.exists():
-        st.warning(
-            "Forecast file not found.\n\n"
-            f"Expected: {FORECAST_FILE}\n\n"
-            "Fix: generate it from your forecasting notebook and save to data/processed/, then commit + push."
-        )
-    else:
-        try:
-            fc = load_forecast(FORECAST_FILE)
-        except Exception as e:
-            st.error(f"Failed to load forecast file. Details: {e}")
-            st.stop()
+    fig_fc = go.Figure()
 
-        # Historical citywide monthly from monthly_df (not filtered by neighborhood/category for forecast view)
-        hist_citywide = (
-            monthly_df.groupby("month", as_index=False, observed=True)["incidents"]
-            .sum()
-            .sort_values("month")
-        )
+    fig_fc.add_trace(go.Scatter(
+        x=mc["month"], y=mc["incidents"],
+        mode="lines+markers", name="Historical"
+    ))
 
-        fig_fc = go.Figure()
+    fig_fc.add_trace(go.Scatter(
+        x=fc["month"], y=fc["forecast"],
+        mode="lines+markers", name="Forecast"
+    ))
 
-        fig_fc.add_trace(
-            go.Scatter(
-                x=hist_citywide["month"], y=hist_citywide["incidents"],
-                mode="lines+markers", name="Historical"
-            )
-        )
+    fig_fc.add_trace(go.Scatter(
+        x=fc["month"], y=fc["lower"],
+        mode="lines", line=dict(width=0), showlegend=False
+    ))
 
-        fig_fc.add_trace(
-            go.Scatter(
-                x=fc["month"], y=fc["forecast"],
-                mode="lines+markers", name="Forecast"
-            )
-        )
+    fig_fc.add_trace(go.Scatter(
+        x=fc["month"], y=fc["upper"],
+        mode="lines", line=dict(width=0),
+        fill="tonexty", name="Confidence Interval"
+    ))
 
-        fig_fc.add_trace(
-            go.Scatter(
-                x=fc["month"], y=fc["lower"],
-                mode="lines", line=dict(width=0), showlegend=False
-            )
-        )
+    fig_fc.update_layout(height=520)
+    st.plotly_chart(fig_fc, use_container_width=True)
 
-        fig_fc.add_trace(
-            go.Scatter(
-                x=fc["month"], y=fc["upper"],
-                mode="lines", line=dict(width=0),
-                fill="tonexty", name="Confidence Interval"
-            )
-        )
-
-        fig_fc.update_layout(height=520)
-        st.plotly_chart(fig_fc, width="stretch")
-
-        st.caption(
-            "Baseline forecast using a seasonal time-series model on monthly citywide totals. "
-            "This is an operational planning signal, not a causal claim."
-        )
+    st.caption(
+        "Baseline forecast using a seasonal time-series model on monthly citywide totals. "
+        "This is an operational planning signal, not a causal claim."
+    )
 
 
 # ============================================================
@@ -388,17 +345,14 @@ with tab3:
 # ============================================================
 with tab4:
     st.subheader("What this dashboard shows")
-    st.markdown(
-        """
-- The app reads **precomputed parquet artifacts** from `data/processed/` for fast, reliable deployment.
-- Filters apply to **aggregated views**, not raw incidents (a deliberate design choice for Streamlit Cloud).
-- The forecast panel reads a **precomputed citywide model output**.
-        """
-    )
+    st.markdown("""
+- The dashboard reads only precomputed parquet artifacts under `data/processed/`.
+- Filters apply to the monthly neighborhood-category aggregates.
+- Hour × Weekday patterns come from a separate hourly-weekday aggregate and are filtered by category.
+- The forecast panel reads a precomputed citywide model output.
+""")
 
     st.subheader("Neighborhood naming")
-    st.markdown(
-        """
+    st.markdown("""
 This project uses the official DataSF **Analysis Neighborhoods** system for consistency with city reporting.
-        """
-    )
+""")
