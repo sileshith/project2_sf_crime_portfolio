@@ -13,8 +13,10 @@ __pycache__/
 data/raw/
 data/processed/incidents_clean_2018_2025.parquet
 
-# Streamlit
-.streamlit/
+# Streamlit (ignore cache, but keep config)
+.streamlit/*
+!.streamlit/config.toml
+
 
 # OS
 .DS_Store
