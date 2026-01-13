@@ -8,14 +8,25 @@ It is designed as a **portfolio-quality analytics project** demonstrating an end
 
 The emphasis is on **structure, reproducibility, and clarity**, mirroring real-world analytics systems rather than ad-hoc exploration.
 
----
+## Reports
+
+- **Executive Presentation Deck:**  
+  `reports/SF_CrimeTrendAnalysis_2026Forecast.pdf`  
+  Concise, slide-based summary highlighting key findings, MSI framework, hotspot analysis, and the 2026 outlook.
+
+- **Full Technical Report:**  
+  `reports/SF Crime Trend Analysis and Forecasting (2018-2025).pdf`  
+  Comprehensive documentation covering data validation, feature engineering, exploratory analysis, modeling decisions, and analytical limitations.
 
 ## Live Dashboard
 
 **Public Streamlit App:**  
  https://project2sfcrimeportfolio-g6jhgqizljzqexcb3ss7wd.streamlit.app/
 
-The deployed dashboard reads exclusively from precomputed parquet artifacts and does not rely on raw incident-level data at runtime.
+The deployed dashboard reads exclusively from **precomputed parquet artifacts** and does not rely on raw incident-level data at runtime.
+
+This design mirrors production analytics environments where dashboards are decoupled from raw data storage.
+
 
 ---
 
