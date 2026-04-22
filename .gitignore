@@ -25,3 +25,10 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+cleanedData/
+iframe_figures/
+reports/
+dashboard_charts/
+dashboard_charts_final/
+README.html

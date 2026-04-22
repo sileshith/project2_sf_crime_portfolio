@@ -1,131 +1,239 @@
-# San Francisco Crime Analytics (2018–2025) + 2026 Outlook
+<!-- HERO HEADER (Jupyter Notebook & HTML Export) -->
+<div style="
+position: relative;
+width: 100%;
+min-height: 520px;
+border-radius: 10px;
+overflow: hidden;
+">
+<img src="goldenGatebrge.png"
+alt="Golden Gate Bridge"
+style="width: 100%; height: auto; display: block;">
+<div style="
+position: absolute;
+top: 0; left: 0; right: 0; bottom: 0;
+background-color: rgba(0,0,0,0.45);
+"></div>
+<div style="
+position: absolute;
+top: 30%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 90%;
+max-width: 900px;
+text-align: center;
+color: white;
+z-index: 2;
+">
+<h1 style="
+font-size: 42px;
+font-weight: 800;
+line-height: 1.15;
+margin: 0;
+padding: 0;
+">
+San Francisco Crime Analytics (2018-2025)
+</h1>
+<h2 style="
+font-size: 22px;
+font-weight: 500;
+margin-top: 10px;
+padding: 0;
+">
+Forecasting, Neighborhood Patterns, and Patrol Optimization Using Python
+</h2>
+</div>
+<div style="
+position: absolute;
+bottom: 40px;
+left: 40px;
+z-index: 2;
+color: white;
+font-size: 15px;
+line-height: 1.45;
+background-color: rgba(0,0,0,0.45);
+padding: 12px 20px;
+border-radius: 6px;
+white-space: nowrap;
+">
+<strong>Author:</strong> Sileshi Hirpa<br>
+<strong>Course:</strong> DAT 301 (Exploring Data in R & Python)<br>
+<strong>Project:</strong> Project 2 (Python)<br>
+<strong>Professor:</strong> Dr. Neha Joshi (PhD)<br>
+<strong>Data Source:</strong> SFPD Incident Reports (DataSF)<br>
+<strong>Time Window:</strong> 2018-2025
+</div>
+<div style="
+position: absolute;
+bottom: 40px;
+right: 40px;
+z-index: 2;
+color: white;
+font-size: 14px;
+font-style: italic;
+text-align: right;
+">
+Arizona State University • December 2025
+</div>
+</div>
+<div style="text-align: center; font-size: 12px; color: gray; margin-top: 6px;">
+Cover Image Source: Britannica - “Golden Gate Bridge”
+</div>
 
-## Overview
-
-This project analyzes San Francisco Police Department (SFPD) incident records from 2018–2025 and produces a short-term citywide forecast for 2026.
-
-It is designed as a **portfolio-quality analytics project** demonstrating an end-to-end workflow: data validation, feature engineering, reproducible aggregation pipelines, forecasting, and deployment of an interactive dashboard.
-
-The emphasis is on **structure, reproducibility, and clarity**, mirroring real-world analytics systems rather than ad-hoc exploration.
-
-## Reports
-
-- **Executive Presentation Deck:**  
-  `reports/SF_CrimeTrendAnalysis_2026Forecast.pdf`  
-  Concise, slide-based summary highlighting key findings, MSI framework, hotspot analysis, and the 2026 outlook.
-
-- **Full Technical Report:**  
-  `reports/SF Crime Trend Analysis and Forecasting (2018-2025).pdf`  
-  Comprehensive documentation covering data validation, feature engineering, exploratory analysis, modeling decisions, and analytical limitations.
-
-## Live Dashboard
-
-**Public Streamlit App:**  
- https://project2sfcrimeportfolio-g6jhgqizljzqexcb3ss7wd.streamlit.app/
-
-The deployed dashboard reads exclusively from **precomputed parquet artifacts** and does not rely on raw incident-level data at runtime.
-
-This design mirrors production analytics environments where dashboards are decoupled from raw data storage.
 
 
----
+## San Francisco Crime Analytics (2018-2025)
 
-## Project Structure
+A structured, end-to-end analysis of nearly one million SFPD incident reports, covering **data cleaning, exploratory visualization, geospatial patterns, time-series forecasting, and an interactive Streamlit dashboard.** This project demonstrates practical analytical workflow skills aligned with business analytics and data science roles.
 
-```text
-project2_sf_crime_portfolio/
-│
-├── dashboard/
-│   └── app.py              # Streamlit dashboard (reads precomputed artifacts)
-│
-├── data/
-│   ├── raw/                # Original SFPD data (not tracked)
-│   └── processed/          # Cleaned & aggregated parquet artifacts
-│
-├── notebooks/
-│   ├── 01_data_validation_and_cleaning.ipynb
-│   ├── 02_exploratory_analysis.ipynb
-│   └── 03_forecasting_2026.ipynb
-│
-├── models/                 # Saved forecasting model artifacts (optional)
-│
-├── reports/
-│   └── sf_crime_analysis_report.pdf
-│
-├── scripts/
-│   └── build_dashboard_artifacts.py   # Reproducible aggregation pipeline
-│
-├── .streamlit/
-│   └── config.toml         # Dashboard theme configuration
-│
-├── README.md
-└── requirements.txt
-```
 
----
 
-## Data
+### Table of Contents
+1. [Project Overview](#project-overview)
+2. [Research Goals](#research-goals)
+3. [Dataset](#dataset)
+4. [Repository Structure](#repository-structure)
+5. [Analytical Summary](#analytical-summary)
+   - [Citywide Trend](#1-citywide-trend-2018-2025)
+   - [Neighborhood Hotspots](#2-neighborhood-hotspots)
+   - [Leading Crime Categories](#3-leading-crime-categories)
+   - [Daily & Weekly Patterns](#4-daily-and-weekly-patterns)
+   - [Neighborhood Profiles](#5-neighborhood-crime-profiles)
+   - [Forecasting Early 2026](#6-forecasting-early-2026-sarima)
+   - [Dashboard Features](#7-dashboard-highlights)
+6. [How to Run This Project](#how-to-run-this-project)
+7. [Dashboard Snapshot](#dashboard-snapshot)
+8. [Key Skills Demonstrated](#key-skills-demonstrated)
 
-### Source
-- DataSF - Police Incident Reports
-- Neighborhood definitions follow the official **Analysis Neighborhoods** system used by the City of San Francisco.
 
-### Included Data (GitHub-friendly)
-To keep the repository lightweight and reproducible, the dashboard reads from **precomputed parquet artifacts** rather than raw incident-level data.
 
-Included processed files:
-- `data/processed/monthly_neighborhood_category.parquet`
-- `data/processed/hourly_weekday_counts.parquet`
-- `data/processed/monthly_citywide.parquet`
-- `data/processed/forecast_citywide_monthly_2026.parquet`
+### Project Overview
 
-### Omitted Data
-The full cleaned incident-level dataset  
-`incidents_clean_2018_2025.parquet` (~1M rows) is not included due to size constraints.
+This analysis explores crime trends in San Francisco using **2018-2025 SFPD incident data**. The work includes:
+- Detailed data cleaning and feature engineering
+- Temporal and weekday/hourly analysis
+- Profiling across DataSF’s **41 Analysis Neighborhoods**
+- Category-level exploration
+- SARIMA-based forecasting for early 2026
+- Dual dashboards (local and API-powered) for interactive exploration
 
-All dashboard views and forecasts rely exclusively on the aggregated artifacts listed above.  
-This mirrors real-world analytics systems where dashboards are decoupled from raw data storage.
+The project follows a practical, real-world analytic workflow.
 
----
 
-## Dashboard
+#### Research Goals
 
-The interactive dashboard is built using **Streamlit** and **Plotly**.
+1. Identify which neighborhoods and categories contribute most to incident volume.
+2. Examine hourly and weekly crime cycles.
+3. Track citywide trends from 2018 through 2025.
+4. Produce a baseline SARIMA forecast for early 2026.
+5. Build dashboards for analysts and public audiences.
 
-Features:
-- Citywide and neighborhood-level trends
-- Hour × weekday pattern analysis
-- Interactive filtering (years, neighborhoods, categories, weekdays, hours)
-- Precomputed 2026 citywide forecast
-- Downloadable filtered CSV
 
-### Run Locally
+### Dataset
 
-1. Activate environment:
+- **Source:** DataSF Open Data Portal
+- **Dataset:** Police Incident Reports
+- **Time Span:** 2018–2025
+- **Geographical Standard:** DataSF’s **41 Analysis Neighborhoods**
+
+
+
+### Repository Structure
+│  
+ ├── project2_SH.ipynb # Full analysis notebook   
+ ├── project2_SH.html # HTML export   
+ ├── app.py # Streamlit dashboar    
+├── goldenGatebrge.png # Cover image    
+├── dashboard_charts/ # Dashboard snapshot assets   
+└── Police_Department_Incident_Reports__2018_to_20251121.csv   
+
+
+
+### Analytical Summary
+
+#### 1. Citywide Trend (2018-2025)
+
+Incident volume declines significantly beginning in 2020 and stabilizes at lower levels through 2024–2025 due to:
+- Hybrid and remote work
+- Fewer commuters in downtown areas
+- Changing tourism patterns
+- Targeted safety initiatives
+
+San Francisco appears to have settled into a **post-2020 baseline**.
+
+#### 2. Neighborhood Hotspots
+
+Consistently high-activity neighborhoods include:
+1. Mission
+2. Tenderloin
+3. South of Market (SoMa)
+4. Financial District / South Beach
+5. Bayview-Hunters Point
+
+Lower-activity residential regions include Sunset/Parkside, Marina, Seacliff, Outer Richmond.
+
+#### 3. Leading Crime Categories
+
+Top categories across years:
+- **Larceny/Theft**
+- **Malicious Mischief**
+- **Assault**
+- **Other Miscellaneous**
+- **Motor Vehicle Theft**
+- **Burglary**
+
+These categories define the city's crime signature.
+
+### 4. Daily and Weekly Patterns
+
+##### Hourly
+- Quietest: **4-6 AM**
+- Midday peak: **12-3 PM**
+- Evening plateau: **3-7 PM**
+- Weekend nightlife spike: **12-3 AM**
+
+##### Weekly
+- Highest: **Wednesday & Friday**
+- Lowest: **Sunday**
+
+#### 5. Neighborhood Crime Profiles
+- **Theft-heavy areas:** Financial District, South Beach, Union Square, SoMa
+- **Vehicle-crime clusters:** Mission, Tenderloin, Bayview
+- **Lower-risk residential:** Sunset, Richmond, Marina
+
+#### 6. Forecasting Early 2026 (SARIMA)
+
+SARIMA projections estimate:
+- **3,900-4,600 incidents per month** early in 2026
+- Levels remain **~41% below** pre-2020 averages
+- Seasonal cycles remain stable
+- No evidence of return to pre-pandemic highs
+
+#### 7. Dashboard Highlights
+
+**Full Local Dashboard**
+Includes:
+- Spatial heatmaps
+- Hourly/weekday trends
+- Category breakdowns
+- Neighborhood comparisons
+- Forecast visualization
+
+**API-Based Dashboard**
+Includes:
+- Dynamic filters
+- Real-time updated visuals
+- CSV export
+- Neighborhood & category exploration
+
+
+#### How to Run This Project
+
+#### Run the Notebook
 ```bash
-   conda activate py313
-```
+# Launch Jupyter Notebook or Lab
+jupyter notebook
+# or
+jupyter lab
 
-2. Install dependencies:
-```
-    pip install -r requirements.txt
-```
-
-3. Launch the dashboard:
-```
-streamlit run dashboard/app.py
-```
-
-### Notes on Interpretation
-
-The 2026 forecast is intended as a planning and trend-monitoring signal, not a causal claim.
-
-Results reflect reported incidents and may be influenced by reporting practices, policy changes, and external events.
-
-This project prioritizes analytical rigor and reproducibility over visual embellishment.
-
-#### Author
-
-Sileshi Hirpa  
-Data Science & Business Analytics  
-Arizona State University
+# Open project2_SH.ipynb and run all cells
