@@ -2,15 +2,23 @@
 
 **Generated:** 2026-06-08 23:44:35  
 **Model:** SARIMA(1,1,1)(1,1,1,12)  
-**Dataset:** SF Crime Monthly Citywide Totals (2018-2025)
+**Dataset:** SF Crime Monthly Citywide Totals (2018-2025)  
+**Validation Method:** Train/Test Split (6-month holdout)
 
 ---
 
 ## Executive Summary
 
-This report validates the SARIMA time-series forecasting model used in the SF Crime Analytics dashboard. The model was trained on historical data and evaluated on a held-out test set using standard forecasting metrics.
+This report validates the SARIMA time-series forecasting model used in the SF Crime Analytics dashboard. The model was trained on historical data and evaluated on a held-out test set using industry-standard forecasting metrics.
 
-**Key Finding:** SARIMA outperforms the seasonal naive baseline by **78.9%** (MAE improvement).
+**Key Finding:** The SARIMA model achieves **3.78% MAPE** and outperforms the seasonal naive baseline by **78.9%** (MAE improvement), demonstrating excellent forecast accuracy suitable for operational planning.
+
+### Performance Highlights
+
+- **MAPE:** 3.78% (excellent - well below 10% threshold)
+- **MAE:** 255.7 incidents/month (average forecast error)
+- **Baseline Improvement:** 78.9% reduction in MAE vs. seasonal naive
+- **Model Quality:** Suitable for short-term (3-6 month) planning decisions
 
 ---
 

@@ -1,7 +1,16 @@
 # Resume Bullets - SF Crime Analytics Project
 
 **Generated:** 2026-06-08 23:44:35  
-**Source:** Validated metrics from SARIMA forecast evaluation
+**Source:** Validated metrics from SARIMA forecast evaluation  
+**Validation Status:** ✅ All metrics computed from actual test set performance
+
+---
+
+## Project Summary
+
+End-to-end crime analytics project demonstrating time-series forecasting, data engineering, and interactive visualization skills. Built SARIMA forecasting model achieving 3.78% MAPE (78.9% improvement over baseline) and dual-dashboard architecture processing 1M+ SFPD incidents across 41 neighborhoods.
+
+**Key Achievement:** Rigorous model validation with train/test split methodology, baseline comparison, and industry-standard metrics (MAE, RMSE, MAPE).
 
 ---
 
