@@ -10,7 +10,7 @@
 
 This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series forecasting, geospatial analysis, and interactive dashboards. The SARIMA model achieves 3.78% MAPE on a 6-month holdout set, reducing forecast error by 78.9% compared to a seasonal naive baseline.
 
-**Key Achievement:** Rigorous model validation with train/test split and baseline comparison, demonstrating measurable improvement in forecast accuracy.
+**Key Achievement:** Rigorous validation with train/test split and baseline comparison, demonstrating measurable improvement in forecast accuracy.
 
 ---
 
@@ -20,12 +20,12 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"I wanted to build a forecasting system that could help understand crime patterns in San Francisco and provide short-term projections for operational planning. The goal was to identify which neighborhoods and time periods see the most incidents, and to create a validated forecasting model that outperforms simple baselines."
+"I wanted to build a forecasting system to understand crime patterns in San Francisco and provide short-term projections. The goal was to identify which neighborhoods and time periods see the most incidents and create a validated forecasting model that outperforms simple baselines."
 
 **Key Points:**
 - Understand spatial and temporal crime patterns
 - Build validated forecasting model for 3-6 month planning
-- Create interactive tools for exploring the data
+- Create interactive tools for data exploration
 - Demonstrate measurable improvement over naive approaches
 
 ---
@@ -36,7 +36,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"I worked with over 1 million SFPD incident reports from 2018 to 2025, sourced from the DataSF Open Data Portal. The data covers 41 official analysis neighborhoods and includes 30+ incident categories. I processed this into monthly aggregates for citywide forecasting and built hourly-weekday patterns for temporal analysis."
+"I worked with over 1 million SFPD incident reports from 2018 to 2025 from the DataSF Open Data Portal. The data covers 41 official analysis neighborhoods and includes 30+ incident categories. I processed this into monthly aggregates for citywide forecasting and built hourly-weekday patterns for temporal analysis."
 
 **Key Points:**
 - 1M+ records from DataSF API
@@ -53,7 +53,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"San Francisco crime data exhibits strong 12-month seasonality. You see consistent patterns like higher incidents in summer and lower in winter. SARIMA is designed to handle both trend and seasonal components, making it well-suited for this type of data. It's also interpretable and widely used in operational forecasting, which makes it easier to explain to stakeholders."
+"San Francisco crime data exhibits strong 12-month seasonality with consistent patterns like higher incidents in summer and lower in winter. SARIMA is designed to handle both trend and seasonal components, making it well-suited for this data. It's also interpretable and widely used in operational forecasting, which makes it easier to explain to stakeholders."
 
 **Key Points:**
 - Strong 12-month seasonality in the data
@@ -75,7 +75,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"I used a train/test split with a 6-month holdout set. I trained the model on 90 months of data (2018-01 to 2025-06) and tested on the final 6 months (2025-07 to 2025-12). I also compared against a seasonal naive baseline, which just uses the value from the same month last year. This is standard practice for time-series validation."
+"I used a train/test split with a 6-month holdout set. I trained the model on 90 months of data and tested on the final 6 months. I also compared against a seasonal naive baseline, which uses the value from the same month last year. This is standard practice for time-series validation."
 
 **Key Points:**
 - Train/test split (90 months train, 6 months test)
@@ -97,7 +97,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"MAPE stands for Mean Absolute Percentage Error. A MAPE of 3.78% means that on average, my forecasts are within 3.78% of the actual values. In forecasting, anything under 10% is considered excellent. So 3.78% indicates the model is highly accurate and suitable for operational planning."
+"MAPE stands for Mean Absolute Percentage Error. A MAPE of 3.78% means my forecasts are within 3.78% of actual values on average. In forecasting, anything under 10% is considered excellent, so 3.78% indicates the model is highly accurate and suitable for operational planning."
 
 **Key Points:**
 - MAPE < 10% = excellent forecast
@@ -118,7 +118,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"MAE is Mean Absolute Error. It means that on average, my forecast is off by about 256 incidents per month. Given that San Francisco sees around 6,000-7,500 incidents per month in recent years, this represents about 3-4% error, which aligns with the MAPE. It's a concrete measure of forecast accuracy in the original units."
+"MAE is Mean Absolute Error. On average, my forecast is off by about 256 incidents per month. Given that San Francisco sees around 6,000-7,500 incidents per month in recent years, this represents about 3-4% error, which aligns with the MAPE. It's a concrete measure of forecast accuracy in the original units."
 
 **Key Points:**
 - MAE = average absolute error
@@ -135,7 +135,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"I compared my SARIMA model against a seasonal naive baseline, which just uses the value from the same month last year. The baseline had an MAE of 1,211 incidents/month, while SARIMA achieved 256 incidents/month. That's a 78.9% reduction in forecast error. It shows the model adds real value compared to a simple approach."
+"I compared my SARIMA model against a seasonal naive baseline, which uses the value from the same month last year. The baseline had an MAE of 1,211 incidents/month, while SARIMA achieved 256 incidents/month. That's a 78.9% reduction in forecast error, showing the model adds real value compared to a simple approach."
 
 **Key Points:**
 - Baseline MAE: 1,211 incidents/month
@@ -157,7 +157,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"First, the model is rigorously validated with a held-out test set and baseline comparison. Second, it achieves excellent accuracy with MAPE under 4%. Third, it's interpretable, so stakeholders can understand how it works. Fourth, I built dual dashboards for both technical and non-technical users. And fifth, all the code is reproducible with clear documentation."
+"First, the model is rigorously validated with a held-out test set and baseline comparison. Second, it achieves excellent accuracy with MAPE under 4%. Third, it's interpretable, so stakeholders can understand how it works. Fourth, I built dual dashboards for technical and non-technical users. Fifth, all the code is reproducible with clear documentation."
 
 **Key Strengths:**
 1. **Rigorous validation:** Train/test split, baseline comparison
@@ -175,7 +175,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"The main limitation is the 2020 structural break from the pandemic. Crime patterns changed significantly, so the model may not generalize well to future structural shifts. Also, I only tested one SARIMA configuration. Grid search could potentially improve performance. The model also doesn't account for external factors like policy changes or economic conditions. And the 6-month test window is relatively short for long-term validation."
+"The main limitation is the 2020 structural break from the pandemic. Crime patterns changed significantly, so the model may not generalize well to future structural shifts. I only tested one SARIMA configuration, so grid search could potentially improve performance. The model doesn't account for external factors like policy changes or economic conditions. The 6-month test window is also relatively short for long-term validation."
 
 **Key Limitations:**
 1. **Structural breaks:** 2020 pandemic caused regime shift
@@ -198,7 +198,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"First, I'd implement grid search to optimize the SARIMA hyperparameters. Second, I'd add longer-term backtesting with multiple test windows. Third, I'd explore ensemble methods, maybe combining SARIMA with Prophet or exponential smoothing. Fourth, I'd add external regressors like weather or economic indicators. And fifth, I'd build automated retraining and monitoring pipelines."
+"First, I'd implement grid search to optimize the SARIMA hyperparameters. Second, I'd add longer-term backtesting with multiple test windows. Third, I'd explore ensemble methods, combining SARIMA with Prophet or exponential smoothing. Fourth, I'd add external regressors like weather or economic indicators. Fifth, I'd build automated retraining and monitoring pipelines."
 
 **Improvement Priorities:**
 
@@ -234,7 +234,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"I'd set up an automated pipeline that retrains the model monthly using the latest data. I'd implement monitoring to track forecast accuracy and alert if performance degrades. I'd also add A/B testing to compare new model versions against the current production model. For serving, I'd precompute forecasts and store them in a database, then expose them via an API. And I'd build dashboards for both technical monitoring and business stakeholders."
+"I'd set up an automated pipeline that retrains the model monthly using the latest data. I'd implement monitoring to track forecast accuracy and alert if performance degrades. I'd add A/B testing to compare new model versions against the current model. For serving, I'd precompute forecasts and store them in a database, then expose them via an API. I'd build dashboards for technical monitoring and business stakeholders."
 
 **Production Components:**
 - Automated retraining pipeline (monthly)
@@ -250,7 +250,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"I validate the model in three ways. First, I use a held-out test set that the model never sees during training. Second, I compare against a seasonal naive baseline to ensure I'm adding value. Third, I track standard metrics like MAE, RMSE, and MAPE. The model achieves 3.78% MAPE and 78.9% improvement over baseline, which demonstrates it's working well. In production, I'd continue monitoring these metrics as new data arrives."
+"I validate the model in three ways. First, I use a held-out test set that the model never sees during training. Second, I compare against a seasonal naive baseline to ensure I'm adding value. Third, I track standard metrics like MAE, RMSE, and MAPE. The model achieves 3.78% MAPE and 78.9% improvement over baseline, demonstrating it's working well. In production, I'd continue monitoring these metrics as new data arrives."
 
 ---
 
@@ -258,7 +258,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"I'd spend more time on hyperparameter tuning with grid search. I only tested one SARIMA configuration, and there's likely room for improvement. I'd also implement longer backtesting with multiple test windows to better understand model stability. And I'd explore ensemble methods to combine SARIMA with other approaches like Prophet or exponential smoothing."
+"I'd spend more time on hyperparameter tuning with grid search. I only tested one SARIMA configuration, and there's likely room for improvement. I'd implement longer backtesting with multiple test windows to better understand model stability. I'd explore ensemble methods to combine SARIMA with other approaches like Prophet or exponential smoothing."
 
 ---
 
@@ -266,7 +266,7 @@ This project analyzes 1M+ SFPD incident reports from 2018-2025 using time-series
 
 **Answer:**
 
-"The forecast enables operational planning with high confidence. With MAPE under 4%, stakeholders can use these projections for resource allocation decisions. For example, if the model predicts higher incident volume in certain neighborhoods or time periods, that information can inform staffing and deployment. The key is that the model is validated and measurably better than simple baselines."
+"The forecast enables operational planning with high confidence. With MAPE under 4%, stakeholders can use these projections for resource allocation decisions. If the model predicts higher incident volume in certain neighborhoods or time periods, that information can inform staffing and deployment. The key is that the model is validated and measurably better than simple baselines."
 
 ---
 
