@@ -259,3 +259,42 @@ jupyter notebook
 jupyter lab
 
 # Open project2_SH.ipynb and run all cells
+```
+
+### 3. Run the Dashboard
+```bash
+# Option A: API-powered dashboard (live data)
+streamlit run app.py
+
+# Option B: Artifact-based dashboard (precomputed)
+streamlit run dashboard/app.py
+```
+
+### 4. View Documentation
+- **Performance Report:** `docs/performance_report.md`
+- **Resume Bullets:** `docs/resume_bullets.md`
+- **Project Audit:** `docs/project_audit.md`
+
+---
+
+## Key Skills Demonstrated
+
+### Technical Skills
+- **Time-Series Forecasting:** SARIMA modeling with seasonal components
+- **Model Validation:** Train/test split, MAE/RMSE/MAPE metrics, baseline comparison
+- **Data Engineering:** ETL pipeline, API integration, parquet artifacts
+- **Visualization:** Plotly interactive charts, Streamlit dashboards
+- **Python Libraries:** Pandas, NumPy, Statsmodels, Scikit-learn
+
+### Analytical Skills
+- Geospatial analysis across 41 neighborhoods
+- Temporal pattern recognition (hourly, weekly, monthly)
+- Trend analysis and structural break detection
+- Category-level incident profiling
+
+### Software Engineering
+- Modular code structure with src/ organization
+- Dual-dashboard architecture (API + artifacts)
+- Error handling and data validation
+- Performance optimization (caching, chunking)
+- Documentation and reproducibility
