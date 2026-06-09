@@ -227,9 +227,31 @@ Includes:
 - Neighborhood & category exploration
 
 
-#### How to Run This Project
+### Model Validation & Performance
 
-#### Run the Notebook
+**Note:** Run `python src/validate_forecast.py` to generate performance metrics.
+
+The SARIMA forecasting model has been validated using train/test split methodology. Key metrics:
+
+- **Forecast Accuracy:** See `docs/performance_report.md` for MAE, RMSE, MAPE
+- **Baseline Comparison:** Model performance vs. seasonal naive baseline
+- **Resume Bullets:** See `docs/resume_bullets.md` for quantitatively supported claims
+
+---
+
+## How to Run This Project
+
+### 1. Run Model Validation (Generate Metrics)
+```bash
+# Validate SARIMA model and generate performance reports
+python src/validate_forecast.py
+
+# This creates:
+# - docs/performance_report.md (detailed metrics)
+# - docs/resume_bullets.md (resume-ready claims)
+```
+
+### 2. Run the Notebook
 ```bash
 # Launch Jupyter Notebook or Lab
 jupyter notebook
