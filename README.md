@@ -320,3 +320,38 @@ streamlit run dashboard/app.py
 - Robust error handling and data validation pipelines
 - Performance optimization through chunked API calls and parquet storage
 - Comprehensive documentation and reproducible validation pipeline
+
+---
+
+## Troubleshooting
+
+### Environment Setup
+
+**Recommended workflow:**
+```bash
+# 1. Activate the correct environment
+conda activate py313
+
+# 2. Navigate to project root
+cd /Users/sileshihirpa/Desktop/ASU/projects/san-francisco-crime-forecasting
+
+# 3. Verify dependencies
+python -c "import statsmodels, sklearn; print('✓ Dependencies OK')"
+
+# 4. Run validation
+python src/validate_forecast.py
+```
+
+### Common Issues
+
+**Problem:** `ModuleNotFoundError: No module named 'statsmodels'`
+
+**Solution:**
+```bash
+conda activate py313
+pip install -r requirements.txt
+```
+
+**Problem:** `FileNotFoundError: Missing: data/processed/monthly_citywide.parquet`
+
+**Solution:** Ensure you've run the data processing pipeline to generate artifacts. Check that `data/processed/` contains the required parquet files.
