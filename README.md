@@ -40,7 +40,7 @@ font-weight: 500;
 margin-top: 10px;
 padding: 0;
 ">
-Forecasting, Neighborhood Patterns, and Patrol Optimization Using Python
+Time-Series Forecasting and Geospatial Analysis Using Python
 </h2>
 </div>
 <div style="
@@ -57,11 +57,9 @@ border-radius: 6px;
 white-space: nowrap;
 ">
 <strong>Author:</strong> Sileshi Hirpa<br>
-<strong>Course:</strong> DAT 301 (Exploring Data in R & Python)<br>
-<strong>Project:</strong> Project 2 (Python)<br>
-<strong>Professor:</strong> Dr. Neha Joshi (PhD)<br>
 <strong>Data Source:</strong> SFPD Incident Reports (DataSF)<br>
-<strong>Time Window:</strong> 2018-2025
+<strong>Time Window:</strong> 2018-2025<br>
+<strong>Model:</strong> SARIMA (3.78% MAPE)
 </div>
 <div style="
 position: absolute;
@@ -73,7 +71,7 @@ font-size: 14px;
 font-style: italic;
 text-align: right;
 ">
-Arizona State University • December 2025
+Portfolio Project • December 2025
 </div>
 </div>
 <div style="text-align: center; font-size: 12px; color: gray; margin-top: 6px;">
@@ -256,10 +254,12 @@ streamlit run app.py
 streamlit run dashboard/app.py
 ```
 
-### 4. View Documentation
-- **Performance Report:** `docs/performance_report.md`
-- **Resume Bullets:** `docs/resume_bullets.md`
-- **Project Audit:** `docs/project_audit.md`
+### 5. View Documentation
+
+- Performance report: `docs/performance_report.md`
+- Resume bullets: `docs/resume_bullets.md`
+- Interview prep: `docs/interview_talking_points.md`
+- Project audit: `docs/project_audit.md`
 
 ---
 
