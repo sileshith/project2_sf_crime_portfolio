@@ -3,5 +3,6 @@ pandas
 numpy
 plotly
 statsmodels
+scikit-learn
 kaleido
 requests
