@@ -153,8 +153,8 @@ st.markdown("""
 
 st.title("San Francisco Crime Analytics 2018–2025")
 st.markdown(
-    "Interactive dashboard using SFPD Incident Reports (DataSF API). "
-    "Filters update all charts instantly."
+    "Interactive dashboard analyzing SFPD incident reports from the DataSF API. "
+    "Apply filters to explore patterns across neighborhoods, categories, and time periods."
 )
 
 # Load the data

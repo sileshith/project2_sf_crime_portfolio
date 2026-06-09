@@ -1,16 +1,16 @@
 # Resume Bullets - SF Crime Analytics Project
 
-**Generated:** 2026-06-08 23:44:35  
+**Author:** Sileshi Hirpa  
 **Source:** Validated metrics from SARIMA forecast evaluation  
-**Validation Status:** ✅ All metrics computed from actual test set performance
+**Status:** All metrics computed from actual test set performance
 
 ---
 
 ## Project Summary
 
-End-to-end crime analytics project demonstrating time-series forecasting, data engineering, and interactive visualization skills. Built SARIMA forecasting model achieving 3.78% MAPE (78.9% improvement over baseline) and dual-dashboard architecture processing 1M+ SFPD incidents across 41 neighborhoods.
+End-to-end crime analytics project demonstrating time-series forecasting, data engineering, and interactive visualization. Built SARIMA forecasting model achieving 3.78% MAPE (78.9% improvement over baseline) and dual-dashboard architecture processing 1M+ SFPD incidents across 41 neighborhoods.
 
-**Key Achievement:** Rigorous model validation with train/test split methodology, baseline comparison, and industry-standard metrics (MAE, RMSE, MAPE).
+**Key Achievement:** Rigorous model validation with train/test split, baseline comparison, and standard metrics (MAE, RMSE, MAPE).
 
 ---
 
@@ -28,43 +28,46 @@ End-to-end crime analytics project demonstrating time-series forecasting, data e
    - Metrics: MAE, RMSE
    - Evidence: docs/performance_report.md
 
-3. **"Implemented seasonal ARIMA model with 12-month periodicity, generating 6-month crime forecasts with confidence intervals for operational planning"**
-   - Skills: Seasonal decomposition, uncertainty quantification
-   - Technical: SARIMA(1,1,1)(1,1,1,12)
-   - Evidence: app.py, dashboard/app.py
+**"Implemented seasonal ARIMA model with 12-month periodicity, generating 6-month crime forecasts with confidence intervals"**
+
+- Skills: Seasonal decomposition, uncertainty quantification
+- Technical: SARIMA(1,1,1)(1,1,1,12)
+- Evidence: app.py, dashboard/app.py
 
 ### Data Engineering & Pipeline
 
-4. **"Engineered end-to-end crime analytics pipeline processing 1M+ SFPD incidents (2018-2025) using Python, Pandas, and Plotly, deployed via Streamlit dashboard with real-time API integration"**
-   - Skills: Python, Pandas, Plotly, Streamlit, API integration
-   - Scale: 1M+ records
-   - Evidence: app.py, src/build_dashboard_artifacts.py
+**"Engineered end-to-end crime analytics pipeline processing 1M+ SFPD incidents (2018-2025) using Python, Pandas, and Plotly, deployed via Streamlit dashboard with API integration"**
 
-5. **"Built dual-dashboard architecture (API-powered + artifact-based) with 24-hour caching, dynamic filtering, and CSV export functionality"**
-   - Skills: System design, caching, performance optimization
-   - Technical: Parquet artifacts, API chunking
-   - Evidence: app.py, dashboard/app.py
+- Skills: Python, Pandas, Plotly, Streamlit, API integration
+- Scale: 1M+ records
+- Evidence: app.py, src/build_dashboard_artifacts.py
+
+**"Built dual-dashboard architecture (API-powered + artifact-based) with 24-hour caching, dynamic filtering, and CSV export"**
+
+- Skills: System design, caching, performance optimization
+- Technical: Parquet artifacts, API chunking
+- Evidence: app.py, dashboard/app.py
 
 ### Analysis & Insights
 
-6. **"Conducted geospatial and temporal analysis across 41 SF neighborhoods, identifying top 3 hotspots (Mission, Tenderloin, SoMa) representing 30% of citywide incidents"**
-   - Skills: Geospatial analysis, data aggregation
-   - Insight: Actionable hotspot identification
-   - Evidence: README.md, project2_SH.ipynb
+**"Conducted geospatial and temporal analysis across 41 SF neighborhoods, identifying top 3 hotspots (Mission, Tenderloin, SoMa) representing 30% of citywide incidents"**
 
-7. **"Analyzed 8-year crime dataset revealing 40% post-2020 decline and bimodal hourly pattern (midnight/noon peaks) across all neighborhoods"**
-   - Skills: Trend analysis, pattern recognition
-   - Insight: Temporal crime dynamics
-   - Evidence: README.md, app.py
+- Skills: Geospatial analysis, data aggregation
+- Evidence: README.md, project2_SH.ipynb
 
-8. **"Designed interactive dashboard with hour×weekday heatmaps and neighborhood drill-down, enabling stakeholders to explore crime patterns across 41 analysis zones"**
-   - Skills: Dashboard design, data visualization, UX
-   - Impact: Stakeholder enablement
-   - Evidence: app.py, dashboard/app.py
+**"Analyzed 8-year crime dataset revealing 40% post-2020 decline and bimodal hourly pattern (midnight/noon peaks)"**
+
+- Skills: Trend analysis, pattern recognition
+- Evidence: README.md, app.py
+
+**"Designed interactive dashboard with hour×weekday heatmaps and neighborhood drill-down for exploring crime patterns across 41 zones"**
+
+- Skills: Dashboard design, data visualization
+- Evidence: app.py, dashboard/app.py
 
 ---
 
-## 📊 Key Metrics Summary
+## Key Metrics Summary
 
 | Category | Metric | Value |
 |----------|--------|-------|
@@ -79,7 +82,7 @@ End-to-end crime analytics project demonstrating time-series forecasting, data e
 
 ---
 
-## 🎯 Recommended Resume Formats
+## Recommended Resume Formats
 
 ### For Data Scientist Roles
 
@@ -90,7 +93,7 @@ End-to-end crime analytics project demonstrating time-series forecasting, data e
 - Engineered end-to-end pipeline processing 1M+ SFPD incidents with dual-dashboard architecture (API + artifacts)
 - Identified top 3 crime hotspots accounting for 30% of citywide incidents through geospatial analysis
 
-### For Data Analyst Roles
+### Data Analyst Roles
 
 **SF Crime Analytics Dashboard (2018-2025)**  
 *Streamlit, Python, Plotly, API Integration*
@@ -99,7 +102,7 @@ End-to-end crime analytics project demonstrating time-series forecasting, data e
 - Discovered 40% post-2020 crime decline and bimodal hourly patterns through temporal analysis
 - Designed hour×weekday heatmaps and neighborhood drill-down enabling data-driven resource allocation
 
-### For ML Engineer Roles
+### ML Engineer Roles
 
 **Time-Series Forecasting Pipeline**  
 *SARIMA, Python, Statsmodels, Model Validation*
@@ -110,23 +113,24 @@ End-to-end crime analytics project demonstrating time-series forecasting, data e
 
 ---
 
-## ❌ Do NOT Claim (Unsupported)
+## Do NOT Claim (Unsupported)
 
-1. ❌ "Reduced crime by X%" - Descriptive analysis, not causal intervention
-2. ❌ "Optimized patrol allocation" - No optimization algorithm implemented
-3. ❌ "Saved $X in costs" - No cost-benefit analysis performed
-4. ❌ "Achieved 95% accuracy" - Classification accuracy not applicable to time-series forecasting
-5. ❌ "Deployed to production" - Portfolio project, not production system
-6. ❌ "Real-time predictions" - Dashboard uses precomputed forecasts, not real-time model inference
-7. ❌ "Prevented X incidents" - No causal impact evaluation performed
+1. "Reduced crime by X%" - Descriptive analysis, not causal intervention
+2. "Optimized patrol allocation" - No optimization algorithm implemented
+3. "Saved $X in costs" - No cost-benefit analysis performed
+4. "Achieved 95% accuracy" - Not applicable to time-series forecasting
+5. "Deployed to production" - Portfolio project
+6. "Real-time predictions" - Dashboard uses precomputed forecasts
+7. "Prevented X incidents" - No causal impact evaluation
 
 **What you CAN claim:**
-- ✅ 3.78% MAPE on test set
-- ✅ 78.9% improvement over baseline
-- ✅ Processed 1M+ incidents
-- ✅ Built dual-dashboard architecture
-- ✅ Validated with train/test split
-- ✅ Identified top 3 hotspots (30% of incidents)
+
+- 3.78% MAPE on test set
+- 78.9% improvement over baseline
+- Processed 1M+ incidents
+- Built dual-dashboard architecture
+- Validated with train/test split
+- Identified top 3 hotspots (30% of incidents)
 
 ---
 
@@ -150,14 +154,14 @@ End-to-end crime analytics project demonstrating time-series forecasting, data e
 
 ---
 
-## 📚 Technical Deep-Dive Points
+## Technical Deep-Dive Points
 
-- **Why SARIMA?** Handles both trend and seasonality; interpretable; standard in time-series forecasting
-- **Why (1,1,1)(1,1,1,12)?** Balances model complexity with interpretability; 12-month seasonal cycle
-- **Why 6-month test?** Sufficient for validation while preserving training data; aligns with operational planning horizon
-- **Why seasonal naive baseline?** Industry-standard baseline for seasonal data; represents "do nothing" approach
-- **Model limitations:** Assumes linear relationships; sensitive to structural breaks; no external regressors
+- **Why SARIMA?** Handles trend and seasonality, interpretable, standard for time-series
+- **Why (1,1,1)(1,1,1,12)?** Balances complexity with interpretability, 12-month cycle
+- **Why 6-month test?** Sufficient for validation, aligns with planning horizon
+- **Why seasonal naive baseline?** Standard baseline for seasonal data
+- **Model limitations:** Assumes linear relationships, sensitive to structural breaks, no external regressors
 
 ---
 
-*All metrics in this document are computed from actual model validation and can be reproduced by running `python src/validate_forecast.py`.*
+*All metrics computed from actual model validation. Reproducible via `python src/validate_forecast.py`.*

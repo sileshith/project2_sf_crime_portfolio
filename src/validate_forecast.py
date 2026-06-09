@@ -284,20 +284,25 @@ def generate_resume_bullets(metrics):
 
 ---
 
-## ✅ Quantitatively Supported Bullets
+## Quantitatively Supported Bullets
 
-### Forecasting & Modeling (Primary)
+### Forecasting & Modeling
 
-1. **"Developed SARIMA forecasting model achieving 3.78% MAPE on a six-month holdout set and reducing MAE by 78.9% versus a seasonal naive baseline"**
-   - Skills: Time-series forecasting, SARIMA, model validation
-   - Metrics: 3.78% MAPE, 78.9% improvement over baseline
-   - Evidence: docs/performance_report.md
-   - **Use this as primary resume bullet**
+**PRIMARY BULLET (use this first):**
 
-2. **"Validated time-series forecasting model using train/test split methodology, achieving MAE of 256 incidents/month (RMSE: 334) on held-out data"**
-   - Skills: Model validation, statistical testing, forecast evaluation
-   - Metrics: MAE, RMSE on 6-month test set
-   - Evidence: docs/performance_report.md
+**"Developed SARIMA forecasting model achieving 3.78% MAPE on a six-month holdout set and reducing MAE by 78.9% versus a seasonal naive baseline"**
+
+- Skills: Time-series forecasting, SARIMA, model validation
+- Metrics: 3.78% MAPE, 78.9% improvement
+- Evidence: docs/performance_report.md
+
+**SECONDARY BULLETS:**
+
+**"Validated time-series forecasting model using train/test split methodology, achieving MAE of 256 incidents/month (RMSE: 334) on held-out data"**
+
+- Skills: Model validation, statistical testing
+- Metrics: MAE, RMSE on 6-month test set
+- Evidence: docs/performance_report.md
 
 3. **"Implemented seasonal ARIMA model with 12-month periodicity, generating 6-month crime forecasts with confidence intervals for operational planning"**
    - Skills: Seasonal decomposition, uncertainty quantification
@@ -354,14 +359,14 @@ def generate_resume_bullets(metrics):
 
 ## 🎯 Recommended Resume Formats
 
-### For Data Scientist Roles
+### Data Scientist Roles
 
 **San Francisco Crime Analytics & Forecasting**  
 *Python, SARIMA, Streamlit, Pandas, Plotly*
 
 - Developed SARIMA forecasting model achieving 3.78% MAPE on six-month holdout set, reducing MAE by 78.9% versus seasonal naive baseline
-- Engineered end-to-end pipeline processing 1M+ SFPD incidents with dual-dashboard architecture (API + artifacts)
-- Identified top 3 crime hotspots accounting for 30% of citywide incidents through geospatial analysis across 41 neighborhoods
+- Engineered end-to-end pipeline processing 1M+ SFPD incidents with dual-dashboard architecture
+- Identified top 3 crime hotspots accounting for 30% of citywide incidents through geospatial analysis
 
 ### For Data Analyst Roles
 
@@ -393,25 +398,27 @@ def generate_resume_bullets(metrics):
 
 ---
 
-## 📝 LinkedIn Summary Snippet
+## LinkedIn Summary Snippet
 
-"Developed a time-series forecasting system for San Francisco crime data, achieving 3.78% MAPE and 78.9% improvement over seasonal naive baseline. Built dual-dashboard architecture processing 1M+ incidents with interactive visualizations across 41 neighborhoods. Validated model using rigorous train/test split methodology. Technologies: Python, SARIMA, Streamlit, Plotly, Pandas, Statsmodels."
+"Developed a time-series forecasting system for San Francisco crime data, achieving 3.78% MAPE and 78.9% improvement over seasonal naive baseline. Built dual-dashboard architecture processing 1M+ incidents with interactive visualizations across 41 neighborhoods. Technologies: Python, SARIMA, Streamlit, Plotly, Pandas, Statsmodels."
 
 ---
 
-## 🎤 Interview Talking Points
+## Interview Talking Points (Brief)
 
-1. **Model Selection:** "I chose SARIMA because SF crime data exhibits strong 12-month seasonality. The model captures both trend and seasonal components, which is essential for accurate forecasting."
+See `docs/interview_talking_points.md` for comprehensive interview preparation.
 
-2. **Validation Approach:** "I used a rigorous 6-month held-out test set and compared against a seasonal naive baseline to ensure the model adds measurable value. This is industry-standard practice for time-series validation."
+**Quick Points:**
 
-3. **Performance:** "The model achieved 3.78% MAPE, which is excellent—well below the 10% threshold for high-quality forecasts. It's 78.9% more accurate than simply using last year's values."
+1. **Model Selection:** "I chose SARIMA because SF crime data exhibits strong 12-month seasonality."
 
-4. **Business Impact:** "The forecast enables operational planning with high confidence. With MAPE under 4%, stakeholders can rely on these projections for resource allocation decisions."
+2. **Validation:** "I used a 6-month held-out test set and compared against a seasonal naive baseline."
 
-5. **Limitations:** "The 2020 structural break represents a regime shift. I recommend quarterly retraining to adapt to evolving patterns and monitoring forecast accuracy as new data arrives."
+3. **Performance:** "The model achieved 3.78% MAPE, well below the 10% threshold for high-quality forecasts."
 
-6. **Technical Rigor:** "I validated every claim with actual metrics. The 78.9% improvement over baseline is computed from real test set performance, not training data."
+4. **Improvement:** "It's 78.9% more accurate than using last year's values."
+
+5. **Limitations:** "The 2020 structural break represents a regime shift. Quarterly retraining is recommended."
 
 ---
 

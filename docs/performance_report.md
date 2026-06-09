@@ -1,36 +1,38 @@
 # SARIMA Forecast Validation Report
 
-**Generated:** 2026-06-08 23:44:35  
 **Model:** SARIMA(1,1,1)(1,1,1,12)  
 **Dataset:** SF Crime Monthly Citywide Totals (2018-2025)  
-**Validation Method:** Train/Test Split (6-month holdout)
+**Validation:** Train/Test Split (6-month holdout)  
+**Author:** Sileshi Hirpa
 
 ---
 
 ## Executive Summary
 
-This report validates the SARIMA time-series forecasting model used in the SF Crime Analytics dashboard. The model was trained on historical data and evaluated on a held-out test set using industry-standard forecasting metrics.
+This report validates the SARIMA time-series forecasting model used in the SF Crime Analytics dashboard. The model was trained on historical data and evaluated on a held-out test set using standard forecasting metrics.
 
-**Key Finding:** The SARIMA model achieves **3.78% MAPE** and outperforms the seasonal naive baseline by **78.9%** (MAE improvement), demonstrating excellent forecast accuracy suitable for operational planning.
+**Key Finding:** The SARIMA model achieves 3.78% MAPE and outperforms the seasonal naive baseline by 78.9% (MAE improvement). This demonstrates excellent forecast accuracy suitable for operational planning.
 
 ### Performance Highlights
 
-- **MAPE:** 3.78% (excellent - well below 10% threshold)
-- **MAE:** 255.7 incidents/month (average forecast error)
+- **MAPE:** 3.78% (excellent, well below 10% threshold)
+- **MAE:** 255.7 incidents/month
 - **Baseline Improvement:** 78.9% reduction in MAE vs. seasonal naive
-- **Model Quality:** Suitable for short-term (3-6 month) planning decisions
+- **Use Case:** Short-term (3-6 month) planning
 
 ---
 
 ## Validation Methodology
 
 ### Train/Test Split
+
 - **Training Period:** 2018-01 to 2025-06 (90 months)
 - **Test Period:** 2025-07 to 2025-12 (6 months)
 - **Approach:** Walk-forward validation with fixed test window
 
 ### Baseline Model
-**Seasonal Naive Forecast:** Uses the value from the same month in the previous year as the prediction. This is a standard baseline for seasonal data and represents the "do nothing" approach.
+
+**Seasonal Naive Forecast:** Uses the value from the same month in the previous year. This is a standard baseline for seasonal data.
 
 ---
 
@@ -99,46 +101,46 @@ This report validates the SARIMA time-series forecasting model used in the SF Cr
 
 ## Interpretation
 
-### What These Metrics Mean
+### Metric Definitions
 
-1. **MAE (255.7):** On average, the SARIMA forecast is off by about 256 incidents per month.
+**MAE (255.7 incidents/month):** On average, the SARIMA forecast is off by about 256 incidents per month.
 
-2. **MAPE (3.78%):** The forecast has an average percentage error of 3.8%, meaning predictions are typically within 3.8% of actual values.
+**MAPE (3.78%):** The forecast has an average percentage error of 3.8%. Predictions are typically within 3.8% of actual values.
 
-3. **Improvement (78.9%):** SARIMA reduces forecast error by 78.9% compared to simply using last year's values.
+**Improvement (78.9%):** SARIMA reduces forecast error by 78.9% compared to using last year's values.
 
-### Model Quality Assessment
+### Model Quality
 
-**Excellent** - MAPE < 10% indicates highly accurate forecasts
+**Excellent.** MAPE < 10% indicates highly accurate forecasts suitable for operational planning.
 
 ---
 
 ## Limitations
 
-1. **Short Test Window:** 6-month test set provides limited validation. Longer-term backtesting would strengthen confidence.
+1. **Short Test Window:** 6-month test set provides limited validation. Longer backtesting would strengthen confidence.
 
-2. **Single Model:** Only SARIMA(1,1,1)(1,1,1,12) was evaluated. Grid search over hyperparameters could potentially improve performance.
+2. **Single Configuration:** Only SARIMA(1,1,1)(1,1,1,12) was evaluated. Grid search could improve performance.
 
-3. **Structural Breaks:** The 2020 pandemic caused a significant regime shift. Model trained on pre-2020 data may not generalize well.
+3. **Structural Breaks:** The 2020 pandemic caused a regime shift. The model may not generalize to future structural changes.
 
-4. **External Factors:** The model does not account for policy changes, economic conditions, or other external drivers of crime.
+4. **External Factors:** The model does not account for policy changes, economic conditions, or other crime drivers.
 
 ---
 
 ## Recommendations
 
-1. **Deployment:** Model performance is sufficient for short-term (3-6 month) operational planning.
+1. **Use Case:** Model performance supports short-term (3-6 month) operational planning.
 
-2. **Monitoring:** Retrain model quarterly and monitor forecast accuracy as new data arrives.
+2. **Monitoring:** Retrain quarterly and track forecast accuracy as new data arrives.
 
-3. **Uncertainty:** Always present forecasts with confidence intervals to communicate uncertainty.
+3. **Uncertainty:** Present forecasts with confidence intervals.
 
-4. **Baseline Comparison:** Continue comparing against seasonal naive to ensure model adds value.
+4. **Baseline Tracking:** Continue comparing against seasonal naive to verify model value.
 
 ---
 
 ## Conclusion
 
-The SARIMA model demonstrates **measurable improvement** over the seasonal naive baseline, with {metrics['mae_improvement_pct']:.1f}% lower MAE. This validates the model's utility for short-term crime forecasting in San Francisco.
+The SARIMA model demonstrates measurable improvement over the seasonal naive baseline with 78.9% lower MAE. This validates its use for short-term crime forecasting in San Francisco.
 
-**Bottom Line:** The model is suitable for inclusion in the dashboard and can support operational planning decisions.
+**Bottom Line:** The model is suitable for dashboard deployment and operational planning.
