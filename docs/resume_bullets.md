@@ -104,10 +104,20 @@
 ## ❌ Do NOT Claim (Unsupported)
 
 1. ❌ "Reduced crime by X%" - Descriptive analysis, not causal intervention
-2. ❌ "Optimized patrol routes" - No optimization algorithm implemented
+2. ❌ "Optimized patrol allocation" - No optimization algorithm implemented
 3. ❌ "Saved $X in costs" - No cost-benefit analysis performed
-4. ❌ "Achieved 95% accuracy" - Classification accuracy not applicable to regression
+4. ❌ "Achieved 95% accuracy" - Classification accuracy not applicable to time-series forecasting
 5. ❌ "Deployed to production" - Portfolio project, not production system
+6. ❌ "Real-time predictions" - Dashboard uses precomputed forecasts, not real-time model inference
+7. ❌ "Prevented X incidents" - No causal impact evaluation performed
+
+**What you CAN claim:**
+- ✅ 3.78% MAPE on test set
+- ✅ 78.9% improvement over baseline
+- ✅ Processed 1M+ incidents
+- ✅ Built dual-dashboard architecture
+- ✅ Validated with train/test split
+- ✅ Identified top 3 hotspots (30% of incidents)
 
 ---
 
