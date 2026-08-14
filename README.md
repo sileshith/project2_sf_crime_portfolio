@@ -1,321 +1,188 @@
-<!-- HERO HEADER (Jupyter Notebook & HTML Export) -->
-<div style="
-position: relative;
-width: 100%;
-min-height: 520px;
-border-radius: 10px;
-overflow: hidden;
-">
-<img src="goldenGatebrge.png"
-alt="Golden Gate Bridge"
-style="width: 100%; height: auto; display: block;">
-<div style="
-position: absolute;
-top: 0; left: 0; right: 0; bottom: 0;
-background-color: rgba(0,0,0,0.45);
-"></div>
-<div style="
-position: absolute;
-top: 30%;
-left: 50%;
-transform: translate(-50%, -50%);
-width: 90%;
-max-width: 900px;
-text-align: center;
-color: white;
-z-index: 2;
-">
-<h1 style="
-font-size: 42px;
-font-weight: 800;
-line-height: 1.15;
-margin: 0;
-padding: 0;
-">
-San Francisco Crime Analytics (2018-2025)
-</h1>
-<h2 style="
-font-size: 22px;
-font-weight: 500;
-margin-top: 10px;
-padding: 0;
-">
-Time-Series Forecasting and Geospatial Analysis Using Python
-</h2>
-</div>
-<div style="
-position: absolute;
-bottom: 40px;
-left: 40px;
-z-index: 2;
-color: white;
-font-size: 15px;
-line-height: 1.45;
-background-color: rgba(0,0,0,0.45);
-padding: 12px 20px;
-border-radius: 6px;
-white-space: nowrap;
-">
-<strong>Author:</strong> Sileshi Hirpa<br>
-<strong>Data Source:</strong> SFPD Incident Reports (DataSF)<br>
-<strong>Time Window:</strong> 2018-2025<br>
-<strong>Model:</strong> SARIMA (3.78% MAPE)
-</div>
-<div style="
-position: absolute;
-bottom: 40px;
-right: 40px;
-z-index: 2;
-color: white;
-font-size: 14px;
-font-style: italic;
-text-align: right;
-">
-Portfolio Project • December 2025
-</div>
-</div>
-<div style="text-align: center; font-size: 12px; color: gray; margin-top: 6px;">
-Cover Image Source: Britannica - “Golden Gate Bridge”
-</div>
+# San Francisco Reported-Incident Forecasting
 
+[![CI](https://github.com/sileshith/project2_sf_crime_portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/sileshith/project2_sf_crime_portfolio/actions/workflows/ci.yml)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Data: DataSF](https://img.shields.io/badge/Data-DataSF-0B7285)](https://data.sfgov.org/d/wg3w-h783)
 
+An end-to-end public-data project that transforms recorded San Francisco Police
+Department incidents into reproducible aggregates, evaluates time-series models with
+rolling-origin backtests, and presents an uncertainty-aware six-month forecast in an
+interactive Streamlit dashboard.
 
-## San Francisco Crime Analytics (2018-2025)
+> This project measures **reported and recorded incidents**, not all crime or individual
+> safety. Its forecasts are a statistical portfolio demonstration—not a causal model,
+> risk score, or patrol-allocation recommendation.
 
-An end-to-end analysis of nearly one million SFPD incident reports. This project covers data cleaning, exploratory visualization, geospatial patterns, time-series forecasting, and interactive dashboard development. The SARIMA forecasting model achieves 3.78% MAPE and reduces forecast error by 78.9% compared to a seasonal naive baseline.
+## Why this project matters
 
+Public-safety datasets are easy to visualize and easy to overstate. This project is
+designed around the harder questions:
 
+- Can another analyst rebuild the dashboard artifacts from the source?
+- Does a forecast outperform credible simple baselines across multiple time periods?
+- Are data scope, model uncertainty, and ethical limitations visible to the user?
+- Can a large incident-level dataset become a fast, lightweight deployed product?
 
-### Table of Contents
-1. [Project Overview](#project-overview)
-2. [Research Goals](#research-goals)
-3. [Dataset](#dataset)
-4. [Repository Structure](#repository-structure)
-5. [Analytical Summary](#analytical-summary)
-   - [Citywide Trend](#1-citywide-trend-2018-2025)
-   - [Neighborhood Hotspots](#2-neighborhood-hotspots)
-   - [Leading Crime Categories](#3-leading-crime-categories)
-   - [Daily & Weekly Patterns](#4-daily-and-weekly-patterns)
-   - [Neighborhood Profiles](#5-neighborhood-crime-profiles)
-   - [Forecasting Early 2026](#6-forecasting-early-2026-sarima)
-   - [Dashboard Features](#7-dashboard-highlights)
-6. [How to Run This Project](#how-to-run-this-project)
-7. [Dashboard Snapshot](#dashboard-snapshot)
-8. [Key Skills Demonstrated](#key-skills-demonstrated)
+## What the system does
 
-
-
-### Project Overview
-
-This analysis explores crime trends in San Francisco using **2018-2025 SFPD incident data**. The work includes:
-- Detailed data cleaning and feature engineering
-- Temporal and weekday/hourly analysis
-- Profiling across DataSF’s **41 Analysis Neighborhoods**
-- Category-level exploration
-- SARIMA-based forecasting for early 2026
-- Dual dashboards (local and API-powered) for interactive exploration
-
-The project follows a practical, real-world analytic workflow.
-
-
-#### Research Goals
-
-1. Identify which neighborhoods and categories contribute most to incident volume.
-2. Examine hourly and weekly crime cycles.
-3. Track citywide trends from 2018 through 2025.
-4. Produce a baseline SARIMA forecast for early 2026.
-5. Build dashboards for analysts and public audiences.
-
-
-### Dataset
-
-- **Source:** DataSF Open Data Portal
-- **Dataset:** Police Incident Reports
-- **Time Span:** 2018–2025
-- **Geographical Standard:** DataSF’s **41 Analysis Neighborhoods**
-
-
-
-### Repository Structure
-
+```mermaid
+flowchart LR
+    A["DataSF API<br/>wg3w-h783"] --> B["Canonical cleaning<br/>and validation"]
+    B --> C["Versioned aggregate<br/>Parquet artifacts"]
+    C --> D["Rolling-origin<br/>model evaluation"]
+    D --> E["Six-month forecast<br/>with interval"]
+    C --> F["Streamlit dashboard"]
+    E --> F
 ```
-├── README.md
-├── project2_SH.ipynb              # Full analysis notebook
-├── app.py                         # API-powered Streamlit dashboard
-├── dashboard/app.py               # Artifact-based dashboard
-├── src/
-│   ├── validate_forecast.py      # SARIMA validation script
-│   └── build_dashboard_artifacts.py
-├── data/processed/                # Parquet artifacts
+
+The pipeline downloads the complete 2018–2025 study window using deterministic
+pagination, standardizes the incident schema, validates monthly continuity, creates
+dashboard-ready aggregates, compares forecasting approaches, and records artifact
+metadata and checksums.
+
+## Analytical product
+
+The dashboard provides:
+
+- Monthly reported-incident trends with year, neighborhood, and category filters
+- Neighborhood and category concentration views
+- Hour-by-weekday patterns
+- A six-month citywide forecast with a 95% model interval
+- A transparent model-comparison table
+- Data provenance, update metadata, and limitations in the interface
+- Downloadable filtered aggregate data
+
+The committed aggregates let the application start quickly without downloading nearly
+one million records at runtime.
+
+### Verified result
+
+Across six rolling forecast origins, SARIMA produced the strongest mean MASE of the
+tested models (**0.80**), with **5.78% MAPE** and **432 reported incidents MAE**. The
+seasonal-naive baseline produced **14.14% MAPE** and **1,063 MAE** over the same folds.
+These are historical backtest results rather than promised production accuracy.
+
+## Forecast evaluation
+
+Three interpretable forecasting approaches are evaluated:
+
+1. Seasonal naive: the same month from the prior year
+2. Additive Holt-Winters exponential smoothing
+3. SARIMA(1,1,1)(1,1,1,12)
+
+The evaluation uses an expanding-window rolling-origin design with multiple forecast
+origins and a three-month horizon. MAE, RMSE, MAPE, WAPE, and MASE are reported. See the
+[model card](docs/model_card.md) for generated results, intended use, and limitations.
+
+This replaces reliance on a single favorable holdout period. Model performance is
+treated as historical evidence, not a guarantee of future accuracy.
+
+## Repository structure
+
+```text
+├── app.py                         # Canonical Streamlit application
+├── pyproject.toml                 # Runtime and development environment
+├── Makefile                       # Reproducible developer commands
+├── src/sf_incidents/
+│   ├── data.py                    # Local/DataSF ingestion and schema normalization
+│   ├── artifacts.py               # Aggregate artifact construction and metadata
+│   ├── forecasting.py             # Forecast model implementations
+│   ├── evaluate.py                # Rolling-origin evaluation and model card
+│   └── pipeline.py                # Pipeline command-line entry point
+├── tests/                         # Data, aggregation, and forecasting tests
+├── data/
+│   ├── README.md                  # Provenance and rebuild instructions
+│   └── processed/                 # Lightweight deployment artifacts
+├── notebooks/                     # Original exploratory analysis retained for provenance
 ├── docs/
-│   ├── performance_report.md     # Model validation results
-│   ├── resume_bullets.md         # Portfolio-ready claims
-│   └── interview_talking_points.md
-└── requirements.txt
+│   └── model_card.md              # Generated validation and limitations report
+└── .github/workflows/ci.yml       # Automated lint, tests, and compile checks
 ```
 
+The original course-era notebook remains under `notebooks/` as analytical provenance.
+Production logic lives in tested Python modules; the notebook is no longer required to
+build or run the project.
 
+## Run locally
 
-### Key Findings
+### Prerequisites
 
-#### 1. Forecasting Performance
-
-**SARIMA model achieves 3.78% MAPE on 6-month test set**, reducing forecast error by 78.9% compared to seasonal naive baseline. This validates the model for short-term operational planning.
-
-**Metrics:**
-- MAE: 255.7 incidents/month
-- RMSE: 333.7 incidents/month
-- MAPE: 3.78% (excellent, well below 10% threshold)
-
-#### 2. Citywide Trend
-
-Crime incidents declined 40% post-2020 and stabilized at lower levels through 2025. No evidence of return to pre-pandemic volumes.
-
-#### 3. Neighborhood Concentration
-
-Top 3 neighborhoods (Mission, Tenderloin, SoMa) account for approximately 30% of citywide incidents. Lower-activity areas include Sunset/Parkside, Marina, Seacliff, and Outer Richmond.
-
-#### 4. Temporal Patterns
-
-**Hourly:** Bimodal distribution with peaks at midnight and noon. Quietest period is 4-6 AM.
-
-**Weekly:** Friday shows highest volume, Sunday lowest. Wednesday also elevated.
-
-#### 5. Category Distribution
-
-Larceny/Theft dominates at 40%+ of all incidents, followed by Malicious Mischief and Assault.
-
-#### 6. 2026 Forecast
-
-SARIMA projects 3,900-4,600 incidents per month in early 2026, approximately 41% below pre-2020 averages. Seasonal cycles remain stable.
-
-
-
-### Model Validation
-
-The SARIMA forecasting model was validated using train/test split methodology with a 6-month holdout set.
-
-**Performance Metrics:**
-- **MAPE:** 3.78%
-- **MAE:** 255.7 incidents/month
-- **RMSE:** 333.7 incidents/month
-- **Baseline (Seasonal Naive) MAPE:** 17.07%
-- **Improvement:** 78.9% reduction in MAE vs. baseline
-
-The model achieves excellent forecast accuracy (MAPE < 5%) and significantly outperforms the seasonal naive baseline. This validates its use for short-term planning.
-
-**Documentation:**
-- Detailed metrics: `docs/performance_report.md`
-- Resume bullets: `docs/resume_bullets.md`
-- Interview prep: `docs/interview_talking_points.md`
-- Validation script: `src/validate_forecast.py`
-
----
-
-## How to Run This Project
-
-### 1. Environment Setup
+- Python 3.11
+- [uv](https://docs.astral.sh/uv/)
 
 ```bash
-# Activate conda environment
-conda activate py313
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Verify installation
-python -c "import statsmodels, sklearn; print('✓ Dependencies OK')"
+git clone https://github.com/sileshith/project2_sf_crime_portfolio.git
+cd project2_sf_crime_portfolio
+uv sync --extra dev
+uv run streamlit run app.py
 ```
 
-### 2. Run Model Validation
+The dashboard uses the committed aggregate artifacts, so no large download is required.
+
+## Rebuild the project
+
+From the DataSF API:
 
 ```bash
-# Generate performance metrics
-python src/validate_forecast.py
-
-# Creates:
-# - docs/performance_report.md
-# - docs/resume_bullets.md
+uv run sf-incidents-build
+uv run sf-incidents-evaluate
 ```
+
+From an existing incident CSV or Parquet export:
 
 ```bash
-# Launch Jupyter
-jupyter notebook
-
-# Open project2_SH.ipynb and run all cells
+uv run sf-incidents-build --source path/to/incidents.csv
+uv run sf-incidents-evaluate
 ```
 
-### 4. Run the Dashboard
-```bash
-# Option A: API-powered dashboard (live data)
-streamlit run app.py
-
-# Option B: Artifact-based dashboard (precomputed)
-streamlit run dashboard/app.py
-```
-
-### 5. View Documentation
-
-- Performance report: `docs/performance_report.md`
-- Resume bullets: `docs/resume_bullets.md`
-- Interview prep: `docs/interview_talking_points.md`
-- Project audit: `docs/project_audit.md`
-
----
-
-## Skills Demonstrated
-
-### Technical Skills
-- **Time-Series Forecasting:** SARIMA modeling (3.78% MAPE, 78.9% improvement over baseline)
-- **Model Validation:** Train/test split, MAE/RMSE/MAPE metrics, baseline comparison
-- **Data Engineering:** ETL pipeline processing 1M+ records, API integration, parquet artifacts
-- **Visualization:** Plotly interactive charts, Streamlit dashboards
-- **Python:** Pandas, NumPy, Statsmodels, Scikit-learn, Streamlit, Plotly
-
-### Analytical Skills
-- Geospatial analysis across 41 neighborhoods
-- Temporal pattern recognition (hourly, weekly, monthly)
-- Trend analysis (40% post-2020 decline)
-- Category-level profiling
-
-### Software Engineering
-- Modular code structure with src/ organization
-- Dual-dashboard architecture (API + artifacts)
-- Error handling and data validation
-- Performance optimization (caching, chunked API calls)
-- Reproducible validation pipeline
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-**ModuleNotFoundError: No module named 'statsmodels'**
+Run quality checks:
 
 ```bash
-conda activate py313
-pip install -r requirements.txt
+uv run ruff check .
+uv run pytest
 ```
 
-**FileNotFoundError: Missing data/processed/monthly_citywide.parquet**
+Convenience aliases are also available through `make install`, `make build`, `make
+evaluate`, `make check`, and `make app`.
 
-Run the data processing pipeline to generate artifacts. Verify that `data/processed/` contains the required parquet files.
+## Data provenance
 
-**Dashboard won't start**
+- **Publisher:** City and County of San Francisco
+- **Dataset:** Police Department Incident Reports: 2018 to Present
+- **DataSF identifier:** `wg3w-h783`
+- **Study window:** January 2018 through December 2025
+- **Spatial convention:** DataSF Analysis Neighborhoods
+- **Unit of analysis:** Recorded incident reports
 
-Ensure you're in the project root directory and the correct conda environment is activated.
+The incident-level dataset is excluded because of its size. `data/processed/metadata.json`
+records source information, row count, creation time, and artifact hashes. Detailed
+rebuild guidance is in [data/README.md](data/README.md).
 
----
+## Limitations and responsible use
 
-## Author
+- Incident records reflect reporting, enforcement, and classification practices.
+- Raw neighborhood totals are not population- or exposure-adjusted risk rates.
+- The pandemic period represents a major structural break.
+- The models exclude policy, economic, weather, event, and reporting-delay variables.
+- Citywide projections do not imply neighborhood- or person-level risk.
+- Forecast intervals are model-based and require ongoing calibration monitoring.
 
-**Sileshi Hirpa**
+## Skills demonstrated
 
-Portfolio project demonstrating time-series forecasting, geospatial analysis, and interactive dashboard development.
+- Reproducible API ingestion and deterministic pagination
+- Data schema normalization and validation
+- Columnar aggregate design with Parquet
+- Seasonal time-series forecasting and baseline design
+- Rolling-origin backtesting and multi-metric evaluation
+- Uncertainty communication and model documentation
+- Interactive analytical product development with Streamlit and Plotly
+- Automated testing, linting, packaging, and continuous integration
 
----
+## Author and license
 
-## License
+Built by **Sileshi Hirpa** as a portfolio case study in analytics engineering and
+time-series forecasting.
 
-This project uses publicly available data from the DataSF Open Data Portal. The code and analysis are provided for portfolio and educational purposes.
+Code is available under the [MIT License](LICENSE). Source data is provided by DataSF
+under the terms published with the dataset.

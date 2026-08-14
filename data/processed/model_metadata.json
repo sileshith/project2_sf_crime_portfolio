@@ -1,0 +1,7 @@
+{
+  "generated_at_utc": "2026-08-14T22:51:20.386360+00:00",
+  "selection_metric": "mase",
+  "backtest_winner": "sarima",
+  "deployed_model": "sarima",
+  "forecast_horizon_months": 6
+}

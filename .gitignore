@@ -40,3 +40,9 @@ dashboard_charts/
 dashboard_charts_final/
 README.html
 .aider*
+.venv/
+.ruff_cache/
+.pytest_cache/
+dist/
+*.egg-info/
+.DS_Store

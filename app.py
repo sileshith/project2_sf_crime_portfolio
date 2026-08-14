@@ -1,598 +1,270 @@
-import streamlit as st
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
 import pandas as pd
-import numpy as np
-import requests
 import plotly.express as px
 import plotly.graph_objects as go
-from statsmodels.tsa.statespace.sarimax import SARIMAX
+import streamlit as st
 
-# Configuration for API call
-# Using a chunked approach for robustness on Streamlit Cloud
-LIMIT_PER_CHUNK = 50000
-MAX_TOTAL_ROWS = 250000
-BASE_URL = "https://data.sfgov.org/resource/wg3w-h783.json"
+ROOT = Path(__file__).resolve().parent
+DATA = ROOT / "data" / "processed"
+WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
-# --------------------------------------------------
-# Helper: Download Plotly figure as PNG
-# --------------------------------------------------
-def png_download_button(fig, filename: str, label: str):
-    """Creates a Streamlit download button for a Plotly PNG."""
-    # Since 'kaleido' is in requirements.txt, this should work without warning.
-    try:
-        img_bytes = fig.to_image(format="png", scale=2)
-        st.download_button(
-            label=label,
-            data=img_bytes,
-            file_name=filename,
-            mime="image/png"
-        )
-    except Exception:
-        # Fail silently as we expect the user to install kaleido
-        pass
+st.set_page_config(page_title="SF Reported-Incident Intelligence", page_icon="🌉", layout="wide")
 
-# --------------------------------------------------
-# Load and clean incident data (API Source)
-# --------------------------------------------------
-# FIX: Using ttl=24*3600 (24 hours) to cache data and prevent NameError
-@st.cache_data(ttl=24*3600)
-def load_incidents() -> pd.DataFrame:
-    st.info(f"Fetching up to {MAX_TOTAL_ROWS:,} incidents from DataSF API (cached for 24 hours)...")
-    
-    all_chunks = []
-    select_cols = ",".join([
-        "incident_date", "incident_datetime", "analysis_neighborhood",
-        "incident_category", "incident_day_of_week", "latitude", "longitude"
-    ])
-    where_clause = (
-        "incident_date >= '2018-01-01T00:00:00.000' "
-        "AND incident_date <= '2025-12-31T23:59:59.999'"
-    )
 
-    offset = 0
-    while offset < MAX_TOTAL_ROWS:
-        params = {
-            "$select": select_cols,
-            "$where": where_clause,
-            "$limit": LIMIT_PER_CHUNK,
-            "$offset": offset
-        }
-
-        try:
-            r = requests.get(BASE_URL, params=params, timeout=60)
-            r.raise_for_status()
-            
-            chunk = pd.DataFrame(r.json())
-            if chunk.empty:
-                break
-
-            all_chunks.append(chunk)
-            offset += LIMIT_PER_CHUNK
-        except requests.exceptions.RequestException as e:
-            st.error(f"API request failed at offset {offset}. Details: {e}")
-            break
-        except Exception as e:
-            st.error(f"An unexpected error occurred while processing data: {e}")
-            break
-
-    if not all_chunks:
-        st.warning("Could not retrieve any data from the API.")
-        return pd.DataFrame()
-
-    df = pd.concat(all_chunks, ignore_index=True)
-    st.success(f"Successfully loaded {len(df):,} total incidents.")
-
-    # Rename columns to convention
-    df = df.rename(columns={
-        "incident_date": "date",
-        "incident_datetime": "incident_datetime",
-        "analysis_neighborhood": "neighborhood",
-        "incident_category": "category",
-        "incident_day_of_week": "weekday",
-    })
-
-    # Convert types
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-    df["incident_datetime"] = pd.to_datetime(df["incident_datetime"], errors="coerce")
-    df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
-    df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
-
-    # Drop missing essentials
-    df = df.dropna(subset=["date", "neighborhood", "category"])
-
-    # Derived fields
-    df["year"] = df["date"].dt.year
-    df["month"] = df["date"].dt.to_period("M").dt.to_timestamp()
-    df["hour"] = df["incident_datetime"].dt.hour
-
-    # Focus range (Project Scope)
-    df = df[(df["year"] >= 2018) & (df["year"] <= 2025)].copy()
-
-    return df
-
-# --------------------------------------------------
-# Page config and Custom CSS (for tab coloring)
-# --------------------------------------------------
-st.set_page_config(
-    page_title="SF Crime Analytics 2018–2025",
-    layout="wide"
-)
-
-# Custom CSS for aesthetics (using shades of blue/teal for tabs)
-st.markdown("""
-<style>
-    /* Main Streamlit container background */
-    .stApp {
-        background-color: #f0f2f6; 
+@st.cache_data(show_spinner="Loading verified project artifacts…")
+def load_data() -> dict[str, pd.DataFrame | dict]:
+    paths = {
+        "monthly": DATA / "monthly_citywide.parquet",
+        "breakdown": DATA / "monthly_neighborhood_category.parquet",
+        "hourly": DATA / "hourly_weekday_counts.parquet",
+        "forecast": DATA / "forecast_citywide_monthly_2026.parquet",
+        "backtest": DATA / "backtest_summary.csv",
+        "metadata": DATA / "metadata.json",
+        "model_metadata": DATA / "model_metadata.json",
     }
-    
-    /* Active tab style */
-    .stTabs [data-testid="stTabList"] button[aria-selected="true"] {
-        background-color: #1f77b4; /* Deep Blue for selection */
-        color: white; /* White text for contrast */
-        border-radius: 8px 8px 0px 0px;
-        font-weight: bold;
-        padding-top: 10px;
-        padding-bottom: 10px;
+    missing = [path.name for path in paths.values() if not path.exists()]
+    if missing:
+        raise FileNotFoundError(f"Missing project artifacts: {', '.join(missing)}")
+    result: dict[str, pd.DataFrame | dict] = {
+        "monthly": pd.read_parquet(paths["monthly"]),
+        "breakdown": pd.read_parquet(paths["breakdown"]),
+        "hourly": pd.read_parquet(paths["hourly"]),
+        "forecast": pd.read_parquet(paths["forecast"]),
+        "backtest": pd.read_csv(paths["backtest"]),
+        "metadata": json.loads(paths["metadata"].read_text()),
+        "model_metadata": json.loads(paths["model_metadata"].read_text()),
     }
-    
-    /* Default tab style */
-    .stTabs [data-testid="stTabList"] button {
-        background-color: #e5e5e5; /* Light gray */
-        color: #333333; /* Dark text */
-        border-radius: 8px 8px 0px 0px;
-        margin-right: 5px;
-        border: 1px solid #cccccc;
-    }
-    
-    .stTitle {
-        color: #1f77b4;
-    }
-</style>
-""", unsafe_allow_html=True)
+    return result
 
 
-st.title("San Francisco Crime Analytics 2018–2025")
-st.markdown(
-    "Interactive dashboard analyzing SFPD incident reports from the DataSF API. "
-    "Apply filters to explore patterns across neighborhoods, categories, and time periods."
-)
-
-# Load the data
-df = load_incidents()
-if df.empty:
+try:
+    data = load_data()
+except Exception as exc:
+    st.error(f"The dashboard could not load its verified artifacts: {exc}")
     st.stop()
 
-# --------------------------------------------------
-# Sidebar filters
-# --------------------------------------------------
-st.sidebar.header("Filters")
+monthly = data["monthly"].copy()
+breakdown = data["breakdown"].copy()
+hourly = data["hourly"].copy()
+forecast = data["forecast"].copy()
+backtest = data["backtest"].copy()
+metadata = data["metadata"]
+model_metadata = data["model_metadata"]
 
-years = sorted(df["year"].dropna().unique())
-min_year, max_year = int(min(years)), int(max(years))
+monthly["month"] = pd.to_datetime(monthly["month"])
+breakdown["year_month"] = pd.to_datetime(breakdown["year_month"])
+forecast["month"] = pd.to_datetime(forecast["month"])
 
-year_range = st.sidebar.slider(
-    "Year range",
-    min_value=min_year,
-    max_value=max_year,
-    value=(min_year, max_year),
-    step=1
+st.title("San Francisco Reported-Incident Intelligence")
+st.markdown(
+    "A reproducible view of recorded SFPD incidents from **2018–2025**, with transparent "
+    "model backtesting and an uncertainty-aware six-month outlook."
 )
-
-neighborhoods = sorted(df["neighborhood"].unique())
-selected_nbhds = st.sidebar.multiselect(
-    "Neighborhoods (Analysis Zones)",
-    options=neighborhoods,
-    default=neighborhoods
-)
-
-categories = sorted(df["category"].unique())
-selected_categories = st.sidebar.multiselect(
-    "Incident categories",
-    options=categories,
-    default=categories[:10]
-)
-
-weekday_order = [
-    "Monday", "Tuesday", "Wednesday", "Thursday",
-    "Friday", "Saturday", "Sunday"
-]
-selected_weekdays = st.sidebar.multiselect(
-    "Weekdays",
-    options=weekday_order,
-    default=weekday_order
-)
-
-hour_range = st.sidebar.slider(
-    "Hour range",
-    min_value=0,
-    max_value=23,
-    value=(0, 23),
-    step=1
-)
-
-# --------------------------------------------------
-# Apply filters
-# --------------------------------------------------
-mask = (
-    (df["year"] >= year_range[0]) &
-    (df["year"] <= year_range[1]) &
-    (df["neighborhood"].isin(selected_nbhds)) &
-    (df["category"].isin(selected_categories)) &
-    (df["weekday"].isin(selected_weekdays)) &
-    (df["hour"].between(hour_range[0], hour_range[1], inclusive="both"))
-)
-
-df_filt = df[mask].copy()
-
 st.caption(
-    f"Filtered incidents: **{len(df_filt):,}** out of {len(df):,} total (API data)."
+    f"Data artifact generated {metadata['generated_at_utc'][:10]} · "
+    f"{metadata['source_rows']:,} canonical records · DataSF dataset wg3w-h783"
 )
 
-# --------------------------------------------------
-# Download filtered CSV
-# --------------------------------------------------
-st.sidebar.markdown("---")
-st.sidebar.download_button(
-    label="Download filtered CSV",
-    data=df_filt.to_csv(index=False).encode("utf-8"),
-    file_name="sf_crime_filtered.csv",
-    mime="text/csv"
+with st.sidebar:
+    st.header("Explore")
+    years = sorted(breakdown["year"].unique())
+    year_range = st.slider(
+        "Year range", int(min(years)), int(max(years)), (int(min(years)), int(max(years)))
+    )
+    neighborhoods = sorted(breakdown["neighborhood"].dropna().unique())
+    selected_neighborhoods = st.multiselect("Neighborhoods", neighborhoods, default=neighborhoods)
+    category_totals = (
+        breakdown.groupby("incident_category")["incidents"].sum().sort_values(ascending=False)
+    )
+    categories = category_totals.index.tolist()
+    selected_categories = st.multiselect("Incident categories", categories, default=categories)
+    st.divider()
+    st.markdown(
+        "[Data source](https://data.sfgov.org/d/wg3w-h783) · [Methodology](https://github.com/sileshith/project2_sf_crime_portfolio/blob/main/docs/model_card.md)"
+    )
+
+if not selected_neighborhoods or not selected_categories:
+    st.warning("Select at least one neighborhood and incident category.")
+    st.stop()
+
+filtered = breakdown[
+    breakdown["year"].between(*year_range)
+    & breakdown["neighborhood"].isin(selected_neighborhoods)
+    & breakdown["incident_category"].isin(selected_categories)
+].copy()
+
+total = int(filtered["incidents"].sum())
+months_in_view = max(filtered["year_month"].nunique(), 1)
+top_neighborhood = (
+    filtered.groupby("neighborhood")["incidents"].sum().idxmax() if not filtered.empty else "—"
+)
+top_category = (
+    filtered.groupby("incident_category")["incidents"].sum().idxmax() if not filtered.empty else "—"
 )
 
-# --------------------------------------------------
-# Summary metrics row
-# --------------------------------------------------
-col1, col2, col3 = st.columns(3)
+k1, k2, k3, k4 = st.columns(4)
+k1.metric("Reported incidents", f"{total:,}")
+k2.metric("Monthly average", f"{total / months_in_view:,.0f}")
+k3.metric("Leading neighborhood", top_neighborhood)
+k4.metric("Leading category", top_category)
 
-with col1:
-    st.metric("Total incidents (filtered)", f"{len(df_filt):,}")
+overview, patterns, outlook, methodology = st.tabs(
+    ["Overview", "Time patterns", "Forecast & validation", "Methods & limitations"]
+)
 
-with col2:
-    if len(df_filt) > 0:
-        span_days = (df_filt["date"].max() - df_filt["date"].min()).days + 1
-        avg_per_day = len(df_filt) / max(span_days, 1)
-        st.metric("Average per day", f"{avg_per_day:,.1f}")
-    else:
-        st.metric("Average per day", "0")
+with overview:
+    trend = filtered.groupby("year_month", as_index=False)["incidents"].sum()
+    fig = px.line(
+        trend, x="year_month", y="incidents", markers=True, title="Monthly reported incidents"
+    )
+    fig.update_layout(xaxis_title=None, yaxis_title="Incident records", hovermode="x unified")
+    st.plotly_chart(fig, width="stretch")
 
-with col3:
-    st.metric("Neighborhoods in view", df_filt["neighborhood"].nunique())
-
-st.markdown("---")
-
-# --------------------------------------------------
-# Tabs
-# --------------------------------------------------
-tab1, tab2, tab3, tab4 = st.tabs([
-    "Trends and Rankings",
-    "Hour and Weekday Patterns",
-    "Forecast (2026 Outlook)",
-    "About SF and Analysis Zones"
-])
-
-# ==================================================
-# TAB 1: Trends and Rankings
-# ==================================================
-with tab1:
-    left, right = st.columns((2, 1.3))
-
-    with left:
-        st.subheader("Monthly Incident Trend")
-        if len(df_filt) > 0:
-            monthly = (
-                df_filt.groupby("month")
-                .size()
-                .reset_index(name="incidents")
-                .sort_values("month")
-            )
-
-            fig_ts = px.line(
-                monthly,
-                x="month",
-                y="incidents",
-                markers=True,
-                labels={"month": "Month", "incidents": "Incidents"}
-            )
-            fig_ts.update_layout(height=350)
-            st.plotly_chart(fig_ts, use_container_width=True)
-            png_download_button(fig_ts, "monthly_trend.png", "Download Monthly Trend (PNG)")
-        else:
-            st.info("No data for current filters.")
-
-    with right:
-        st.subheader("Top Neighborhoods")
-        if len(df_filt) > 0:
-            top_nbh = (
-                df_filt["neighborhood"]
-                .value_counts()
-                .head(10)
-                .reset_index()
-            )
-            top_nbh.columns = ["neighborhood", "incidents"]
-
-            fig_bar = px.bar(
-                top_nbh,
-                x="incidents",
-                y="neighborhood",
-                orientation="h",
-                labels={"incidents": "Incidents", "neighborhood": ""},
-                color="incidents",
-                color_continuous_scale="Viridis",
-                text_auto=".2s"
-            )
-            fig_bar.update_layout(height=350, yaxis={"categoryorder": "total ascending"})
-            st.plotly_chart(fig_bar, use_container_width=True)
-            png_download_button(fig_bar, "top_neighborhoods.png", "Download Top Neighborhoods (PNG)")
-        else:
-            st.info("No neighborhood counts to display.")
-
-    st.subheader("Top Categories")
-    if len(df_filt) > 0:
-        top_cat = (
-            df_filt["category"]
-            .value_counts()
-            .head(10)
-            .reset_index()
-        )
-        top_cat.columns = ["category", "incidents"]
-
-        fig_cat = px.bar(
-            top_cat,
-            x="category",
-            y="incidents",
-            labels={"category": "Category", "incidents": "Incidents"},
-            color="incidents",
-            color_continuous_scale="Plasma",
-            text_auto=".2s"
-        )
-        st.plotly_chart(fig_cat, use_container_width=True)
-        png_download_button(fig_cat, "top_categories.png", "Download Top Categories (PNG)")
-    else:
-        st.info("No category counts to display.")
-
-# ==================================================
-# TAB 2: Hour and Weekday Patterns
-# ==================================================
-with tab2:
-    st.subheader("Incident Intensity by Hour and Weekday")
-    if len(df_filt) > 0:
-        heat = (
-            df_filt.groupby(["weekday", "hour"])
-            .size()
-            .reset_index(name="incidents")
-        )
-
-        heat["weekday"] = pd.Categorical(
-            heat["weekday"], categories=weekday_order, ordered=True
-        )
-        heat = heat.sort_values(["weekday", "hour"], ascending=[False, True])
-
-        fig_heat = px.density_heatmap(
-            heat,
-            x="hour",
-            y="weekday",
-            z="incidents",
-            nbinsx=24,
-            labels={"hour": "Hour", "weekday": "Weekday", "z": "Incidents"},
-            color_continuous_scale="Reds"
-        )
-        fig_heat.update_layout(height=450)
-        st.plotly_chart(fig_heat, use_container_width=True)
-        png_download_button(fig_heat, "hour_weekday_heatmap.png", "Download Heatmap (PNG)")
-    else:
-        st.info("No data for heatmap under current filters.")
-
-    st.markdown("---")
     left, right = st.columns(2)
-
     with left:
-        st.subheader("Hourly Pattern")
-        if len(df_filt) > 0:
-            hourly = df_filt["hour"].value_counts().sort_index().reset_index()
-            hourly.columns = ["hour", "incidents"]
-
-            fig_hour = px.line(hourly, x="hour", y="incidents", markers=True)
-            st.plotly_chart(fig_hour, use_container_width=True)
-            png_download_button(fig_hour, "hourly_pattern.png", "Download Hourly Pattern (PNG)")
-
+        neighborhoods_chart = (
+            filtered.groupby("neighborhood", as_index=False)["incidents"]
+            .sum()
+            .nlargest(12, "incidents")
+            .sort_values("incidents")
+        )
+        fig = px.bar(
+            neighborhoods_chart,
+            x="incidents",
+            y="neighborhood",
+            orientation="h",
+            title="Highest-volume neighborhoods",
+        )
+        fig.update_layout(xaxis_title="Incident records", yaxis_title=None)
+        st.plotly_chart(fig, width="stretch")
     with right:
-        st.subheader("Weekday Pattern")
-        if len(df_filt) > 0:
-            wk = df_filt["weekday"].value_counts().reindex(weekday_order).reset_index()
-            wk.columns = ["weekday", "incidents"]
+        categories_chart = (
+            filtered.groupby("incident_category", as_index=False)["incidents"]
+            .sum()
+            .nlargest(12, "incidents")
+            .sort_values("incidents")
+        )
+        fig = px.bar(
+            categories_chart,
+            x="incidents",
+            y="incident_category",
+            orientation="h",
+            title="Highest-volume incident categories",
+        )
+        fig.update_layout(xaxis_title="Incident records", yaxis_title=None)
+        st.plotly_chart(fig, width="stretch")
 
-            fig_wk = px.bar(wk, x="weekday", y="incidents", text_auto=True)
-            st.plotly_chart(fig_wk, use_container_width=True)
-            png_download_button(fig_wk, "weekday_pattern.png", "Download Weekday Pattern (PNG)")
+    st.download_button(
+        "Download filtered monthly data",
+        filtered.to_csv(index=False),
+        "sf_reported_incidents_filtered.csv",
+        "text/csv",
+    )
 
-# ==================================================
-# TAB 3: Forecast (2026 Outlook)
-# ==================================================
-with tab3:
-    st.subheader("Citywide Monthly Forecast (2026 Outlook)")
+with patterns:
+    pattern = hourly[hourly["incident_category"].isin(selected_categories)].copy()
+    pattern = pattern.groupby(["weekday_label", "hour"], as_index=False)["incidents"].sum()
+    matrix = pattern.pivot(index="weekday_label", columns="hour", values="incidents").reindex(
+        WEEKDAYS
+    )
+    fig = px.imshow(
+        matrix,
+        aspect="auto",
+        labels={"x": "Hour of day", "y": "Weekday", "color": "Incident records"},
+        title="Reported incidents by weekday and hour",
+        color_continuous_scale="Blues",
+    )
+    st.plotly_chart(fig, width="stretch")
+    st.info(
+        "The time-pattern artifact supports category filtering but not neighborhood "
+        "or year filtering. "
+        "Those controls therefore do not alter this panel."
+    )
 
-    # Added check for sufficient data length to prevent statsmodels ValueError
-    ts_city_full = df.groupby("month").size()
-    ts_city_full.index = pd.to_datetime(ts_city_full.index)
+with outlook:
+    st.subheader("Six-month citywide outlook")
+    fig = go.Figure()
+    historical_window = monthly.tail(36)
+    fig.add_trace(
+        go.Scatter(
+            x=historical_window["month"],
+            y=historical_window["incidents"],
+            name="Historical",
+            mode="lines+markers",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(x=forecast["month"], y=forecast["lower"], line={"width": 0}, showlegend=False)
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=forecast["month"],
+            y=forecast["upper"],
+            line={"width": 0},
+            fill="tonexty",
+            fillcolor="rgba(37,99,235,.16)",
+            name="95% model interval",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=forecast["month"],
+            y=forecast["forecast"],
+            name="SARIMA forecast",
+            mode="lines+markers",
+            line={"dash": "dash"},
+        )
+    )
+    fig.update_layout(yaxis_title="Reported incidents", xaxis_title=None, hovermode="x unified")
+    st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "The forecast is aggregate and descriptive. It is not an individual risk "
+        "score, causal estimate, "
+        "or patrol-allocation recommendation."
+    )
 
-    if len(ts_city_full) < 24:
-        st.warning("Not enough historical data (24+ months) to perform a reliable Seasonal ARIMA forecast.")
-    else:
-        @st.cache_data(ttl=24*3600)
-        def fit_forecast(ts: pd.Series):
-            try:
-                model = SARIMAX(
-                    ts,
-                    order=(1, 1, 1),
-                    seasonal_order=(1, 1, 1, 12),
-                    enforce_stationarity=False,
-                    enforce_invertibility=False
-                )
-                return model.fit(disp=False)
-            except Exception as e:
-                st.error(f"Error fitting SARIMAX model: {e}")
-                return None
-        
-        results = fit_forecast(ts_city_full)
+    st.subheader("Rolling-origin backtest")
+    display = backtest.rename(
+        columns={
+            "model": "Model",
+            "mae": "MAE",
+            "rmse": "RMSE",
+            "mape": "MAPE (%)",
+            "wape": "WAPE (%)",
+            "mase": "MASE",
+        }
+    )
+    st.dataframe(
+        display.style.format({c: "{:.2f}" for c in display.columns if c != "Model"}),
+        hide_index=True,
+        width="stretch",
+    )
+    st.caption(
+        f"Selection metric: MASE · Backtest winner: {model_metadata['backtest_winner']} · "
+        f"Deployed interval-bearing model: {model_metadata['deployed_model']}"
+    )
 
-        if results:
-            steps = 6
-            pred = results.get_forecast(steps=steps)
-            ci = pred.conf_int()
-
-            forecast_index = pd.date_range(
-                ts_city_full.index[-1] + pd.offsets.MonthBegin(1),
-                periods=steps,
-                freq="MS"
-            )
-
-            forecast_df = pd.DataFrame({
-                "month": forecast_index,
-                "forecast": pred.predicted_mean.values,
-                "lower": ci.iloc[:, 0].values,
-                "upper": ci.iloc[:, 1].values
-            })
-
-            historical_df = ts_city_full.reset_index(name="incidents")
-            historical_df.columns = ["month", "incidents"]
-
-            fig_fc = px.line(
-                historical_df,
-                x="month",
-                y="incidents",
-                markers=True,
-                title="Historical Incidents (2018–2025) and 6-Month Forecast"
-            )
-
-            # Add Forecast line
-            fig_fc.add_trace(
-                go.Scatter(
-                    x=forecast_df["month"],
-                    y=forecast_df["forecast"],
-                    mode="lines+markers",
-                    name="Forecast",
-                    line=dict(color="#d62728", dash="dash") # Red
-                )
-            )
-            # Add Confidence Interval bounds
-            fig_fc.add_trace(
-                go.Scatter(
-                    x=forecast_df["month"],
-                    y=forecast_df["lower"],
-                    mode="lines",
-                    line=dict(width=0),
-                    showlegend=False
-                )
-            )
-            fig_fc.add_trace(
-                go.Scatter(
-                    x=forecast_df["month"],
-                    y=forecast_df["upper"],
-                    mode="lines",
-                    line=dict(width=0),
-                    fill="tonexty",
-                    fillcolor="rgba(214, 39, 40, 0.2)", # Light Red Fill
-                    name="Confidence Interval"
-                )
-            )
-
-            fig_fc.update_layout(height=500, showlegend=True)
-            st.plotly_chart(fig_fc, use_container_width=True)
-            png_download_button(fig_fc, "forecast_2026.png", "Download Forecast Plot (PNG)")
-
-            st.markdown(
-                "This forecast is a baseline Seasonal ARIMA model fit on citywide monthly totals. "
-                "It is intended as a short-term planning aid, not a causal prediction."
-            )
-
-# ==================================================
-# TAB 4: About SF and Analysis Zones
-# ==================================================
-with tab4:
-    st.header("About San Francisco and the 41 Analysis Zones")
-
-    st.subheader("Insights Summary (Based on 2018–2025 Data)")
-
-    st.markdown("""
-    ---
-    ### Insights:
-
-    **1. Neighborhood Distribution**
-
-    The highest incident volumes are concentrated in **Mission, Tenderloin, and South of Market**—three dense neighborhoods with heavy foot traffic, nightlife, commercial activity, and transit connections. These areas traditionally account for a large share of police calls, and the counts in this dataset follow that well-known pattern. 
-
-    **2. Incident Category Distribution**
-
-    **Larceny Theft** is by far the dominant category, reflecting the long-standing pattern of property crime in San Francisco. Categories such as Malicious Mischief, Assault, Burglary, and Motor Vehicle Theft also appear frequently, forming the core group of incidents that drive citywide totals year after year.
-
-    **3. Weekday Distribution**
-
-    Incidents are relatively evenly spread across the week but peak slightly on **Fridays**, which often see higher mobility, nightlife, and social activity. **Sundays** show the lowest volume, consistent with quieter movement patterns across the city.
-
-    **4. Hour-of-Day Distribution**
-
-    The hourly pattern has two clear peaks: one around **midnight** and another around **midday**. Early morning hours (roughly 2 AM–5 AM) are the quietest, while daytime and early evening hours show steady, high activity. This pattern is typical of large cities where property crime and public disturbances follow both business hours and nightlife cycles.
-
-    ---
-
-    ### Note on Neighborhood Naming
-
-    The neighborhood labels in the dataset follow the official **41-zone “Analysis Neighborhoods”** system used by DataSF. This system is employed by the San Francisco Police Department, the Department of Public Health, and the Mayor’s Office to ensure consistent reporting across city agencies. Because these 41 analysis zones combine or redefine several commonly known neighborhoods, their names may differ from those used by the San Francisco Planning Department or from informal neighborhood boundaries found on maps, tourism guides, or Wikipedia. For example, the area labeled “Financial District/South Beach” in the Analysis Neighborhood system would appear as two separate neighborhoods in other sources. For the purposes of this project, all EDA and visualizations use the official SFPD Analysis Neighborhood definitions to maintain accuracy and consistency with city-level reporting.
-
-    ## Approximate Mapping: Common Neighborhood Names vs. Analysis Neighborhoods
-
-    The table below gives a practical translation from the 41 Analysis Neighborhoods
-    to the closest common or informal neighborhood names people use in daily life.
-    These are approximate matches meant to help interpretation.
-
-    | Analysis Neighborhood (DataSF) | Closest Common Name(s) |
-    |---|---|
-    | Bayview Hunters Point | Bayview, Hunters Point, Butchertown |
-    | Bernal Heights | Bernal Heights |
-    | Castro/Upper Market | The Castro, Upper Market, Duboce Triangle |
-    | Chinatown | Chinatown |
-    | Excelsior | Excelsior, Mission Terrace (parts) |
-    | Financial District/South Beach | Financial District, South Beach, Embarcadero (downtown portion) |
-    | Glen Park | Glen Park |
-    | Golden Gate Park | Golden Gate Park |
-    | Haight Ashbury | Haight-Ashbury, Cole Valley (parts), Buena Vista area |
-    | Hayes Valley | Hayes Valley, Civic Center fringe (west) |
-    | Inner Richmond | Inner Richmond, Central Richmond |
-    | Inner Sunset | Inner Sunset |
-    | Japantown | Japantown, Western Addition (northeast portion) |
-    | Lakeshore | Lakeshore, Lake Merced area, St. Francis Wood fringe |
-    | Lincoln Park | Lincoln Park, Sea Cliff fringe |
-    | Lone Mountain/USF | USF area, Lone Mountain, Inner Anza Vista fringe |
-    | Marina | Marina, Cow Hollow (often grouped informally) |
-    | McLaren Park | McLaren Park, University Mound fringe |
-    | Mission | Mission District |
-    | Mission Bay | Mission Bay, China Basin |
-    | Nob Hill | Nob Hill, Lower Nob Hill |
-    | Noe Valley | Noe Valley |
-    | North Beach | North Beach, Telegraph Hill |
-    | Oceanview/Merced/Ingleside | Oceanview, Ingleside, Merced Heights, Lakeview |
-    | Outer Mission | Outer Mission, Crocker-Amazon, Geneva area |
-    | Outer Richmond | Outer Richmond |
-    | Outer Sunset | Outer Sunset |
-    | Pacific Heights | Pacific Heights, Lower Pacific Heights |
-    | Portola | Portola, Silver Terrace fringe |
-    | Potrero Hill | Potrero Hill, Dogpatch fringe |
-    | Presidio | Presidio |
-    | Presidio Heights | Presidio Heights, Laurel Heights fringe |
-    | Russian Hill | Russian Hill |
-    | Seacliff | Sea Cliff |
-    | South of Market | SoMa (South of Market) |
-    | Sunset/Parkside | Inner Sunset fringe, Outer Sunset, Parkside |
-    | Tenderloin | Tenderloin |
-    | Treasure Island | Treasure Island, Yerba Buena Island |
-    | Twin Peaks | Twin Peaks, Clarendon Heights |
-    | Visitacion Valley | Visitacion Valley |
-    | West Of Twin Peaks | West Portal, Forest Hill, St. Francis Wood (parts) |
-    | Western Addition | Western Addition, Alamo Square, Fillmore, Lower Haight fringe |
-
-    ### Why the 41 Analysis Neighborhood System Exists
-
-    San Francisco agencies adopted the 41 Analysis Neighborhood system to create one consistent geography for reporting citywide indicators. These zones were built by grouping Census tracts into neighborhoods that reflect how residents and planning agencies commonly describe the city. Using a single standardized set allows the Police Department, Public Health, and other departments to compare trends across time and across datasets without mismatched neighborhood definitions.
-
-    With the standardized 41 Analysis Neighborhood geography established, we now explore how incidents vary over time, across categories, and between neighborhoods.
-    """)
+with methodology:
+    st.subheader("What the project measures")
+    st.markdown(
+        "The unit is a **recorded SFPD incident**, not an estimate of all crime or "
+        "personal safety. Counts may change with reporting behavior, enforcement "
+        "practice, classification, and source revisions."
+    )
+    st.subheader("Forecast design")
+    st.markdown(
+        "Models are evaluated across multiple expanding-window forecast origins. "
+        "Seasonal naive, additive Holt-Winters ETS, and SARIMA are compared using "
+        "MAE, RMSE, MAPE, WAPE, and MASE."
+    )
+    st.subheader("Known limitations")
+    st.markdown(
+        "- The 2020 pandemic is a structural break.\n"
+        "- Raw neighborhood counts are not population- or exposure-adjusted rates.\n"
+        "- The model excludes policy, weather, economic, event, and reporting-delay variables.\n"
+        "- Citywide forecasts must not be interpreted as neighborhood-level risk."
+    )

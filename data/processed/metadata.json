@@ -1,0 +1,23 @@
+{
+  "generated_at_utc": "2026-08-14T22:51:01.452716+00:00",
+  "source": "DataSF dataset wg3w-h783",
+  "source_rows": 942427,
+  "study_window": [
+    "2018-01-01",
+    "2025-12-31"
+  ],
+  "files": {
+    "monthly_citywide.parquet": {
+      "rows": 96,
+      "sha256": "339db29c2ffd0978efc5c2604ff2e7dc68eae87b2110947048a866a8302b2c9d"
+    },
+    "monthly_neighborhood_category.parquet": {
+      "rows": 86506,
+      "sha256": "b1c9d23b1c87ad77b13ae99ea0a29a2a8a61a9d95a489f83e43014605993a892"
+    },
+    "hourly_weekday_counts.parquet": {
+      "rows": 6957,
+      "sha256": "4277e061ac70794004c9361f62835f8138d62f0633c853a6d8c9da0afc4ec91f"
+    }
+  }
+}
