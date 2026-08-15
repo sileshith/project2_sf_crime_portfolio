@@ -15,6 +15,10 @@ interactive Streamlit dashboard.
 > safety. Its forecasts are a statistical portfolio demonstration—not a causal model,
 > risk score, or patrol-allocation recommendation.
 
+[![San Francisco reported-incident dashboard overview](assets/dashboard-overview.png)](https://sf-incident-forecasting.streamlit.app/)
+
+*Explore the [live interactive dashboard](https://sf-incident-forecasting.streamlit.app/).*
+
 ## Why this project matters
 
 Public-safety datasets are easy to visualize and easy to overstate. This project is
@@ -57,6 +61,32 @@ The dashboard provides:
 The committed aggregates let the application start quickly without downloading nearly
 one million records at runtime.
 
+## Dashboard tour
+
+### Executive overview
+
+[![Dashboard overview showing key metrics, monthly trends, neighborhoods, and incident categories](assets/dashboard-overview.png)](https://sf-incident-forecasting.streamlit.app/)
+
+The overview turns 942,000+ reported incidents into a decision-ready summary: headline
+metrics, long-run monthly movement, and the neighborhoods and categories contributing
+the largest recorded volumes. All views respond to the dashboard filters.
+
+### Temporal patterns
+
+[![Weekday-by-hour heatmap of reported incidents](assets/dashboard-time-patterns.png)](https://sf-incident-forecasting.streamlit.app/)
+
+The weekday-by-hour heatmap exposes recurring reporting patterns that monthly totals
+cannot show, while preserving the distinction between recorded activity and personal
+risk.
+
+### Forecast and validation
+
+[![Six-month forecast with uncertainty interval and rolling-origin validation results](assets/dashboard-forecast-validation.png)](https://sf-incident-forecasting.streamlit.app/)
+
+The forecast view pairs the six-month outlook and 95% model interval with rolling-origin
+backtest results, keeping predictive performance and uncertainty visible beside the
+projection.
+
 ### Verified result
 
 Across six rolling forecast origins, SARIMA produced the strongest mean MASE of the
@@ -83,6 +113,7 @@ treated as historical evidence, not a guarantee of future accuracy.
 
 ```text
 ├── app.py                         # Canonical Streamlit application
+├── assets/                        # README dashboard screenshots
 ├── pyproject.toml                 # Runtime and development environment
 ├── Makefile                       # Reproducible developer commands
 ├── src/sf_incidents/
