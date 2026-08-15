@@ -84,7 +84,8 @@ with st.sidebar:
     selected_categories = st.multiselect("Incident categories", categories, default=categories)
     st.divider()
     st.markdown(
-        "[Data source](https://data.sfgov.org/d/wg3w-h783) · [Methodology](https://github.com/sileshith/project2_sf_crime_portfolio/blob/main/docs/model_card.md)"
+        "[Data source](https://data.sfgov.org/d/wg3w-h783) · "
+        "[Methodology](https://github.com/sileshith/sf-incident-forecasting/blob/main/docs/model_card.md)"
     )
 
 if not selected_neighborhoods or not selected_categories:

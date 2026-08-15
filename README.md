@@ -1,9 +1,10 @@
 # San Francisco Reported-Incident Forecasting
 
-[![CI](https://github.com/sileshith/project2_sf_crime_portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/sileshith/project2_sf_crime_portfolio/actions/workflows/ci.yml)
+[![CI](https://github.com/sileshith/sf-incident-forecasting/actions/workflows/ci.yml/badge.svg)](https://github.com/sileshith/sf-incident-forecasting/actions/workflows/ci.yml)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Data: DataSF](https://img.shields.io/badge/Data-DataSF-0B7285)](https://data.sfgov.org/d/wg3w-h783)
+[![Live App](https://img.shields.io/badge/Live_App-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://sf-incident-forecasting.streamlit.app/)
 
 An end-to-end public-data project that transforms recorded San Francisco Police
 Department incidents into reproducible aggregates, evaluates time-series models with
@@ -112,8 +113,8 @@ build or run the project.
 - [uv](https://docs.astral.sh/uv/)
 
 ```bash
-git clone https://github.com/sileshith/project2_sf_crime_portfolio.git
-cd project2_sf_crime_portfolio
+git clone https://github.com/sileshith/sf-incident-forecasting.git
+cd sf-incident-forecasting
 uv sync --extra dev
 uv run streamlit run app.py
 ```
