@@ -124,6 +124,40 @@ the three-model rolling-origin comparison.
 The report is the canonical narrative artifact for portfolio review. The notebook
 retains the executable analysis and the model card records generated validation details.
 
+## Visual evidence at a glance
+
+### Uncertainty-first forecast
+
+![Observed reported incidents, SARIMA forecast with 95% model interval, and seasonal-naive point baseline](assets/forecast-outlook.png)
+
+The six-month outlook places the SARIMA point forecast inside its model-based 95%
+prediction interval and retains the seasonal-naive point forecast as a visible benchmark.
+The baseline interval is not shown because a directly comparable interval is not stored.
+
+### Rolling-origin consistency
+
+![Fold-level MAE for seasonal naive, ETS, and SARIMA across six forecast origins](assets/backtest-consistency.png)
+
+The fold-level view shows performance across all six stored 2025 origins rather than a
+single favorable holdout. Blue squares and a dotted line identify seasonal naive; orange
+triangles and a dashed line identify ETS; green circles and a solid line identify SARIMA.
+
+### Reporting-pattern heatmap
+
+![Reported incidents by weekday and recorded hour](assets/reporting-pattern-heatmap.png)
+
+The heatmap summarizes recorded weekday-hour patterns across 2018-2025. Color intensity
+represents recorded volume—not personal risk, causal exposure, or probability of
+victimization.
+
+### Reproducible data lineage
+
+![DataSF API to normalized, validated, materialized, evaluated, and delivered analytical product](assets/data-provenance-flow.png)
+
+The lineage view connects deterministic ingestion to schema normalization, 96-month
+continuity validation, versioned Parquet aggregates, rolling-origin evaluation, and the
+deployed analytical product.
+
 ## Forecast evaluation
 
 Three interpretable forecasting approaches are evaluated:
