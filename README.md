@@ -103,7 +103,10 @@ These are historical backtest results rather than promised production accuracy.
 
 The publication-ready
 **[San Francisco Reported-Incident Forecasting Professional Report](reports/SF_Reported_Incident_Forecasting_Professional_Report.pdf)**
-provides a concise, decision-oriented account of the project:
+is a formally structured analytical report with a dated cover page, letter of
+transmittal, report outline, executive summary, introduction and problem statement,
+methodology, analytical body, conclusions and recommendations, and reproducibility
+appendix. It provides a concise, decision-oriented account of the project:
 
 - Business and data understanding framed through CRISP-DM
 - Data provenance, validation, and analytical scope
@@ -113,6 +116,10 @@ provides a concise, decision-oriented account of the project:
 - Weekday-hour reporting-pattern heatmap with an interpretation guide
 - Data-to-product provenance flow and engineering controls
 - Limitations, monitoring protocol, and reproducibility commands
+
+Report visuals preserve their native aspect ratios and use reserved legend space,
+distinct markers and line styles, and a colorblind-safe blue-orange-green palette for
+the three-model rolling-origin comparison.
 
 The report is the canonical narrative artifact for portfolio review. The notebook
 retains the executable analysis and the model card records generated validation details.
