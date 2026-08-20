@@ -108,9 +108,10 @@ provides a concise, decision-oriented account of the project:
 - Business and data understanding framed through CRISP-DM
 - Data provenance, validation, and analytical scope
 - Exploratory findings with explicit interpretation boundaries
-- Comparative seasonal-naive, ETS, and SARIMA evaluation
+- Comparative seasonal-naive, ETS, and SARIMA evaluation with fold-level consistency
 - Six-month 2026 citywide forecast with model-based uncertainty
-- Interactive-product architecture and engineering controls
+- Weekday-hour reporting-pattern heatmap with an interpretation guide
+- Data-to-product provenance flow and engineering controls
 - Limitations, monitoring protocol, and reproducibility commands
 
 The report is the canonical narrative artifact for portfolio review. The notebook
