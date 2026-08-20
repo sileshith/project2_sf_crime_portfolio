@@ -11,6 +11,10 @@ Department incidents into reproducible aggregates, evaluates time-series models 
 rolling-origin backtests, and presents an uncertainty-aware six-month forecast in an
 interactive Streamlit dashboard.
 
+**[Read the professional analytics report](reports/SF_Reported_Incident_Forecasting_Professional_Report.pdf)**
+for the complete CRISP-DM methodology, exploratory findings, rolling-origin validation,
+2026 outlook, engineering controls, monitoring plan, and responsible-use framework.
+
 > This project measures **reported and recorded incidents**, not all crime or individual
 > safety. Its forecasts are a statistical portfolio demonstration—not a causal model,
 > risk score, or patrol-allocation recommendation.
@@ -89,10 +93,28 @@ projection.
 
 ### Verified result
 
-Across six rolling forecast origins, SARIMA produced the strongest mean MASE of the
-tested models (**0.80**), with **5.78% MAPE** and **432 reported incidents MAE**. The
-seasonal-naive baseline produced **14.14% MAPE** and **1,063 MAE** over the same folds.
+Across six rolling forecast origins, SARIMA produced the lowest mean MASE (**0.80**),
+narrowly ahead of ETS (**0.81**), with **5.78% mean MAPE** and **432 reported incidents
+MAE**. ETS recorded **5.81% mean MAPE** and **434 MAE**; the seasonal-naive baseline
+recorded **14.14% mean MAPE**, **1,063 MAE**, and **1.97 MASE** over the same folds.
 These are historical backtest results rather than promised production accuracy.
+
+## Professional report
+
+The publication-ready
+**[San Francisco Reported-Incident Forecasting Professional Report](reports/SF_Reported_Incident_Forecasting_Professional_Report.pdf)**
+provides a concise, decision-oriented account of the project:
+
+- Business and data understanding framed through CRISP-DM
+- Data provenance, validation, and analytical scope
+- Exploratory findings with explicit interpretation boundaries
+- Comparative seasonal-naive, ETS, and SARIMA evaluation
+- Six-month 2026 citywide forecast with model-based uncertainty
+- Interactive-product architecture and engineering controls
+- Limitations, monitoring protocol, and reproducibility commands
+
+The report is the canonical narrative artifact for portfolio review. The notebook
+retains the executable analysis and the model card records generated validation details.
 
 ## Forecast evaluation
 
@@ -129,12 +151,15 @@ treated as historical evidence, not a guarantee of future accuracy.
 ├── notebooks/                     # Original exploratory analysis retained for provenance
 ├── docs/
 │   └── model_card.md              # Generated validation and limitations report
+├── reports/
+│   └── SF_Reported_Incident_Forecasting_Professional_Report.pdf
+│                                    # Publication-ready CRISP-DM case-study report
 └── .github/workflows/ci.yml       # Automated lint, tests, and compile checks
 ```
 
-The original course-era notebook remains under `notebooks/` as analytical provenance.
-Production logic lives in tested Python modules; the notebook is no longer required to
-build or run the project.
+The publication notebook remains under `notebooks/` as executable analytical provenance.
+Production logic lives in tested Python modules; the notebook is not required to build
+or run the deployed product.
 
 ## Run locally
 

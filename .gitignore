@@ -33,6 +33,8 @@ dashboard_charts/
 dashboard_charts_final/
 README.html
 
+tmp/
+
 cleanedData/
 iframe_figures/
 reports/
@@ -46,3 +48,8 @@ README.html
 dist/
 *.egg-info/
 .DS_Store
+
+# Keep the canonical portfolio report while ignoring other generated report files.
+!reports/
+reports/*
+!reports/SF_Reported_Incident_Forecasting_Professional_Report.pdf
